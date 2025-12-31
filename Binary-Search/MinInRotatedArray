@@ -1,0 +1,22 @@
+class Solution {
+public:
+    int findMin(vector<int>& arr) {
+        int low =0, high = arr.size()-1;
+        
+        int ans = INT_MAX;
+        while(low <= high){
+            int mid = low + (high - low)/2;
+
+            if(arr[low] <= arr[mid]){
+                ans = min(ans, arr[low]); // left part is sorted and record the minimum
+                low = mid +1;
+            }
+            else{
+                high = mid -1;   // right part is sorted and discard the right part
+                ans = min(ans, arr[mid]);
+            }
+        }
+        return ans;
+        
+    }
+};

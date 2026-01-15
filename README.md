@@ -348,15 +348,3 @@ LeetCode | GitHub | Interview-Focused DSA
 
 ---
 
-If you want next, I can:
-
-Add difficulty tags (Easy/Medium/Hard)
-
-Create pattern-wise progress checklist
-
-Optimize this README for recruiter visibility
-
-Add Microsoft-specific “Must-Do” problems
-
-
-Just say the word.

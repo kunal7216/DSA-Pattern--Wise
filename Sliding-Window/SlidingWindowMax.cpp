@@ -38,3 +38,95 @@ public:
         return ans;
     }
 };
+
+
+
+*********************************************************************Brute solution*******************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> maxSlidingWindow(vector<int>& nums, int k) {
+        vector<int> ans;
+        int n = nums.size();
+
+        // Try every possible window
+        for (int i = 0; i <= n - k; i++) {
+            int maxi = nums[i];
+
+            // Find maximum inside current window
+            for (int j = i; j < i + k; j++) {
+                maxi = max(maxi, nums[j]);
+            }
+
+            ans.push_back(maxi);
+        }
+
+        return ans;
+    }
+};
+***********************************************************************Better Solution*****************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> maxSlidingWindow(vector<int>& nums, int k) {
+        vector<int> ans;
+
+        // Max heap stores {value, index}
+        priority_queue<pair<int, int>> pq;
+
+        int n = nums.size();
+
+        for (int i = 0; i < n; i++) {
+            // Add current element
+            pq.push({nums[i], i});
+
+            // Remove elements that are outside current window
+            while (!pq.empty() && pq.top().second <= i - k) {
+                pq.pop();
+            }
+
+            // First complete window ends at index k - 1
+            if (i >= k - 1) {
+                ans.push_back(pq.top().first);
+            }
+        }
+
+        return ans;
+    }
+};
+*************************************************************************Optimal solution***************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> maxSlidingWindow(vector<int>& nums, int k) {
+        vector<int> ans;
+
+        // Max heap stores {value, index}
+        priority_queue<pair<int, int>> pq;
+
+        int n = nums.size();
+
+        for (int i = 0; i < n; i++) {
+            // Add current element
+            pq.push({nums[i], i});
+
+            // Remove elements that are outside current window
+            while (!pq.empty() && pq.top().second <= i - k) {
+                pq.pop();
+            }
+
+            // First complete window ends at index k - 1
+            if (i >= k - 1) {
+                ans.push_back(pq.top().first);
+            }
+        }
+
+        return ans;
+    }
+};

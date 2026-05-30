@@ -62,3 +62,48 @@ public:
     }
 };
 
+
+****************************************************************Another Approach****************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    bool checkInclusion(string s1, string s2) {
+        int n = s1.size();
+        int m = s2.size();
+
+        if (n > m) return false;
+
+        vector<int> s1Freq(26, 0);
+        vector<int> windowFreq(26, 0);
+
+        // Build frequency for s1 and first window of s2
+        for (int i = 0; i < n; i++) {
+            s1Freq[s1[i] - 'a']++;
+            windowFreq[s2[i] - 'a']++;
+        }
+
+        // Check the first window
+        if (s1Freq == windowFreq) {
+            return true;
+        }
+
+        // Slide the window
+        for (int right = n; right < m; right++) {
+            // Add new character entering the window
+            windowFreq[s2[right] - 'a']++;
+
+            // Remove old character leaving the window
+            int left = right - n;
+            windowFreq[s2[left] - 'a']--;
+
+            // Check current window
+            if (s1Freq == windowFreq) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+};

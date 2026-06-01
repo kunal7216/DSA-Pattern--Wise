@@ -76,3 +76,148 @@ public:
         return true;
     }
 };
+*************************************************************************Brute Solution*********************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    bool isPalindrome(string temp) {
+        int left = 0;
+        int right = temp.size() - 1;
+
+        while (left < right) {
+            if (temp[left] != temp[right]) {
+                return false;
+            }
+
+            left++;
+            right--;
+        }
+
+        return true;
+    }
+
+    bool validPalindrome(string s) {
+        int n = s.size();
+
+        // Case 1: already palindrome
+        if (isPalindrome(s)) {
+            return true;
+        }
+
+        // Case 2: delete each character one by one
+        for (int i = 0; i < n; i++) {
+            string temp = "";
+
+            for (int j = 0; j < n; j++) {
+                if (j != i) {
+                    temp += s[j];
+                }
+            }
+
+            if (isPalindrome(temp)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+};
+****************************************************************************Bettter Solution******************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    bool isPalindromeAfterSkipping(string &s, int skipIndex) {
+        int left = 0;
+        int right = s.size() - 1;
+
+        while (left < right) {
+            // Skip the deleted character from left side
+            if (left == skipIndex) {
+                left++;
+                continue;
+            }
+
+            // Skip the deleted character from right side
+            if (right == skipIndex) {
+                right--;
+                continue;
+            }
+
+            if (s[left] != s[right]) {
+                return false;
+            }
+
+            left++;
+            right--;
+        }
+
+        return true;
+    }
+
+    bool validPalindrome(string s) {
+        int n = s.size();
+
+        // Case 1: no deletion
+        if (isPalindromeAfterSkipping(s, -1)) {
+            return true;
+        }
+
+        // Case 2: skip every index one by one
+        for (int i = 0; i < n; i++) {
+            if (isPalindromeAfterSkipping(s, i)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+};
+********************************************************************************Optimal Solution**************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    // Checks whether s[left...right] is a palindrome
+    bool isPalindromeRange(string &s, int left, int right) {
+        while (left < right) {
+            if (s[left] != s[right]) {
+                return false;
+            }
+
+            left++;
+            right--;
+        }
+
+        return true;
+    }
+
+    bool validPalindrome(string s) {
+        int left = 0;
+        int right = s.size() - 1;
+
+        while (left < right) {
+            // Characters match, continue normal palindrome check
+            if (s[left] == s[right]) {
+                left++;
+                right--;
+            } 
+            else {
+                // First mismatch found.
+                // We can delete either the left character or the right character.
+
+                bool skipLeft = isPalindromeRange(s, left + 1, right);
+                bool skipRight = isPalindromeRange(s, left, right - 1);
+
+                return skipLeft || skipRight;
+            }
+        }
+
+        // No mismatch found, already palindrome
+        return true;
+    }
+};

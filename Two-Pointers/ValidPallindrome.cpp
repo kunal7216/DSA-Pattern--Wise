@@ -39,4 +39,97 @@ class Solution {
             return true;
         }
     };
+
+**************************************************************************Brute Solution*****************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    bool isPalindrome(string s) {
+        string cleaned = "";
+
+        // Build a cleaned string with only lowercase alphanumeric characters
+        for (char ch : s) {
+            if (isalnum(ch)) {
+                cleaned += tolower(ch);
+            }
+        }
+
+        // Create reversed version of cleaned string
+        string reversed = cleaned;
+        reverse(reversed.begin(), reversed.end());
+
+        // If both are same, it is a palindrome
+        return cleaned == reversed;
+    }
+};
+*****************************************************************************Better Solution**************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    bool isPalindrome(string s) {
+        string cleaned = "";
+
+        // Step 1: Store only lowercase alphanumeric characters
+        for (char ch : s) {
+            if (isalnum(ch)) {
+                cleaned += tolower(ch);
+            }
+        }
+
+        // Step 2: Check palindrome using two pointers
+        int left = 0;
+        int right = cleaned.size() - 1;
+
+        while (left < right) {
+            if (cleaned[left] != cleaned[right]) {
+                return false;
+            }
+
+            left++;
+            right--;
+        }
+
+        return true;
+    }
+};
+**********************************************************************************Optimal Solution*********************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    bool isPalindrome(string s) {
+        int left = 0;
+        int right = s.size() - 1;
+
+        while (left < right) {
+
+            // Skip invalid characters from the left side
+            while (left < right && !isalnum(s[left])) {
+                left++;
+            }
+
+            // Skip invalid characters from the right side
+            while (left < right && !isalnum(s[right])) {
+                right--;
+            }
+
+            // Compare both characters in lowercase form
+            if (tolower(s[left]) != tolower(s[right])) {
+                return false;
+            }
+
+            // Move both pointers inward
+            left++;
+            right--;
+        }
+
+        return true;
+    }
+};
+
     

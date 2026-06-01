@@ -51,3 +51,114 @@ public:
         return s;
     }
 };
+
+****************************************************************************Brute Solution***********************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    bool isVowel(char ch) {
+        ch = tolower(ch);
+
+        return ch == 'a' || ch == 'e' || ch == 'i' ||
+               ch == 'o' || ch == 'u';
+    }
+
+    string reverseVowels(string s) {
+        vector<char> vowels;
+
+        // Step 1: Collect all vowels from the string
+        for (char ch : s) {
+            if (isVowel(ch)) {
+                vowels.push_back(ch);
+            }
+        }
+
+        // Step 2: Replace vowels in reverse order
+        int index = vowels.size() - 1;
+
+        for (int i = 0; i < s.size(); i++) {
+            if (isVowel(s[i])) {
+                s[i] = vowels[index];
+                index--;
+            }
+        }
+
+        return s;
+    }
+};
+*******************************************************************************Better Solution********************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    bool isVowel(char ch) {
+        ch = tolower(ch);
+
+        return ch == 'a' || ch == 'e' || ch == 'i' ||
+               ch == 'o' || ch == 'u';
+    }
+
+    string reverseVowels(string s) {
+        stack<char> st;
+
+        // Step 1: Push all vowels into stack
+        for (char ch : s) {
+            if (isVowel(ch)) {
+                st.push(ch);
+            }
+        }
+
+        // Step 2: Replace vowels using stack top
+        for (int i = 0; i < s.size(); i++) {
+            if (isVowel(s[i])) {
+                s[i] = st.top();
+                st.pop();
+            }
+        }
+
+        return s;
+    }
+};
+***********************************************************************************Optimal Solution****************************************************************************
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    bool isVowel(char ch) {
+        ch = tolower(ch);
+
+        return ch == 'a' || ch == 'e' || ch == 'i' ||
+               ch == 'o' || ch == 'u';
+    }
+
+    string reverseVowels(string s) {
+        int left = 0;
+        int right = s.size() - 1;
+
+        while (left < right) {
+
+            // Move left pointer until it points to a vowel
+            while (left < right && !isVowel(s[left])) {
+                left++;
+            }
+
+            // Move right pointer until it points to a vowel
+            while (left < right && !isVowel(s[right])) {
+                right--;
+            }
+
+            // Now both left and right are vowels, so swap them
+            swap(s[left], s[right]);
+
+            // Move both pointers after swapping
+            left++;
+            right--;
+        }
+
+        return s;
+    }
+};

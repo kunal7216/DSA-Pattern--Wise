@@ -52,3 +52,107 @@ public:
         return fastPointer == 1;
     }
 };
+
+**********************************************************************Brute Solution********************************************************************************
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int getNext(int n) {
+        int sum = 0;
+
+        while (n > 0) {
+            int digit = n % 10;       // Extract last digit
+            sum += digit * digit;     // Add square of digit
+            n /= 10;                  // Remove last digit
+        }
+
+        return sum;
+    }
+
+    bool isHappy(int n) {
+        // Brute force: run for a fixed number of iterations
+        for (int i = 0; i < 1000; i++) {
+            if (n == 1) {
+                return true;
+            }
+
+            n = getNext(n);
+        }
+
+        return false;
+    }
+};
+***********************************************************************Better Solution*******************************************************************************
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int getNext(int n) {
+        int sum = 0;
+
+        while (n > 0) {
+            int digit = n % 10;       // Extract last digit
+            sum += digit * digit;     // Add square of digit
+            n /= 10;                  // Remove last digit
+        }
+
+        return sum;
+    }
+
+    bool isHappy(int n) {
+        unordered_set<int> visited;
+
+        while (n != 1) {
+            // If current number already exists, cycle is detected
+            if (visited.count(n)) {
+                return false;
+            }
+
+            // Mark current number as visited
+            visited.insert(n);
+
+            // Move to next transformed number
+            n = getNext(n);
+        }
+
+        return true;
+    }
+};
+***********************************************************************Optimal Solution*******************************************************************************
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int getNext(int n) {
+        int sum = 0;
+
+        while (n > 0) {
+            int digit = n % 10;       // Extract last digit
+            sum += digit * digit;     // Add square of digit
+            n /= 10;                  // Remove last digit
+        }
+
+        return sum;
+    }
+
+    bool isHappy(int n) {
+        int slow = n;
+        int fast = n;
+
+        do {
+            // Slow moves one step
+            slow = getNext(slow);
+
+            // Fast moves two steps
+            fast = getNext(getNext(fast));
+
+        } while (slow != fast);
+
+        // If both meet at 1, it is a happy number
+        return slow == 1;
+    }
+};

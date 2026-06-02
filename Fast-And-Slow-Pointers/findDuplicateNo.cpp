@@ -1,3 +1,54 @@
+******************************************************************Brute Solution**************************************************************************************
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int findDuplicate(vector<int>& nums) {
+        int n = nums.size();
+
+        // Check every pair of elements
+        for (int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
+
+                // If two values are equal, we found the duplicate
+                if (nums[i] == nums[j]) {
+                    return nums[i];
+                }
+            }
+        }
+
+        return -1;
+    }
+};
+******************************************************************Better Solution**************************************************************************************
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int findDuplicate(vector<int>& nums) {
+        int n = nums.size();
+
+        // visited[x] tells whether x has appeared before
+        vector<int> visited(n, 0);
+
+        for (int i = 0; i < n; i++) {
+            int value = nums[i];
+
+            // If value is already visited, it is the duplicate
+            if (visited[value] == 1) {
+                return value;
+            }
+
+            // Mark value as visited
+            visited[value] = 1;
+        }
+
+        return -1;
+    }
+};
+******************************************************************Optimal Solution**************************************************************************************
 class Solution
 {
 public:

@@ -1,3 +1,86 @@
+******************************************************************Brute Solution*************************************************************************************
+#include <bits/stdc++.h>
+using namespace std;
+
+class Node {
+public:
+    int data;
+    Node* next;
+
+    Node(int val) {
+        data = val;
+        next = NULL;
+    }
+};
+
+class Solution {
+public:
+    int countNodesinLoop(Node *head) {
+        Node* start = head;
+
+        // Treat every node as a possible loop starting point
+        while (start != NULL) {
+            Node* temp = start->next;
+            int count = 1;
+
+            // Move forward and check if we reach start again
+            while (temp != NULL) {
+                if (temp == start) {
+                    return count;
+                }
+
+                temp = temp->next;
+                count++;
+            }
+
+            start = start->next;
+        }
+
+        return 0;
+    }
+};
+******************************************************************Better Solution*************************************************************************************
+#include <bits/stdc++.h>
+using namespace std;
+
+class Node {
+public:
+    int data;
+    Node* next;
+
+    Node(int val) {
+        data = val;
+        next = NULL;
+    }
+};
+
+class Solution {
+public:
+    int countNodesinLoop(Node *head) {
+        unordered_map<Node*, int> visited;
+
+        Node* temp = head;
+        int position = 1;
+
+        while (temp != NULL) {
+            // If node is already visited, loop is found
+            if (visited.find(temp) != visited.end()) {
+                return position - visited[temp];
+            }
+
+            // Store current node with its position
+            visited[temp] = position;
+
+            temp = temp->next;
+            position++;
+        }
+
+        // No loop found
+        return 0;
+    }
+};
+******************************************************************Optimal Solution*************************************************************************************
+
 class Solution
 {
 public:

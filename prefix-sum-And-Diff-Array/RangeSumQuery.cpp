@@ -30,3 +30,74 @@ public:
         return presum[right] - presum[left - 1];
     }
 };
+
+**************************************************************************Brute Solution********************************************************************************
+    class NumArray {
+private:
+    vector<int> nums;
+
+public:
+    NumArray(vector<int>& nums) {
+        this->nums = nums;
+    }
+    
+    int sumRange(int left, int right) {
+        int sum = 0;
+
+        // Add all elements from left to right
+        for (int i = left; i <= right; i++) {
+            sum += nums[i];
+        }
+
+        return sum;
+    }
+};
+***************************************************************************Better Solution*******************************************************************************
+    class NumArray {
+private:
+    vector<vector<int>> rangeSum;
+
+public:
+    NumArray(vector<int>& nums) {
+        int n = nums.size();
+
+        rangeSum.resize(n, vector<int>(n, 0));
+
+        // Precompute sum for every possible range
+        for (int i = 0; i < n; i++) {
+            int sum = 0;
+
+            for (int j = i; j < n; j++) {
+                sum += nums[j];
+                rangeSum[i][j] = sum;
+            }
+        }
+    }
+    
+    int sumRange(int left, int right) {
+        return rangeSum[left][right];
+    }
+};
+****************************************************************************Optimal Solution******************************************************************************
+    class NumArray {
+private:
+    vector<int> prefix;
+
+public:
+    NumArray(vector<int>& nums) {
+        int n = nums.size();
+
+        // prefix[0] = 0
+        // prefix[i + 1] stores sum from nums[0] to nums[i]
+        prefix.resize(n + 1, 0);
+
+        for (int i = 0; i < n; i++) {
+            prefix[i + 1] = prefix[i] + nums[i];
+        }
+    }
+    
+    int sumRange(int left, int right) {
+        // Sum from left to right
+        return prefix[right + 1] - prefix[left];
+    }
+};

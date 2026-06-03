@@ -47,3 +47,102 @@ public:
         return false;
     }
 };
+
+
+************************************************************************Brute Solution**********************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    bool checkSubarraySum(vector<int>& nums, int k) {
+        int n = nums.size();
+
+        // Try every starting index
+        for (int i = 0; i < n; i++) {
+            // Try every ending index
+            for (int j = i + 1; j < n; j++) {
+                int sum = 0;
+
+                // Calculate sum from i to j
+                for (int x = i; x <= j; x++) {
+                    sum += nums[x];
+                }
+
+                // Check if sum is multiple of k
+                if (sum % k == 0) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+};
+*************************************************************************Bettter Solution*********************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    bool checkSubarraySum(vector<int>& nums, int k) {
+        int n = nums.size();
+
+        // Fix starting index
+        for (int i = 0; i < n; i++) {
+            int sum = 0;
+
+            // Extend ending index
+            for (int j = i; j < n; j++) {
+                sum += nums[j];
+
+                // Length of subarray = j - i + 1
+                if (j - i + 1 >= 2 && sum % k == 0) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+};
+*************************************************************************Optimal Solution*********************************************************************************
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    bool checkSubarraySum(vector<int>& nums, int k) {
+        unordered_map<int, int> firstIndex;
+
+        // Remainder 0 exists before array starts
+        // This helps detect subarrays starting from index 0
+        firstIndex[0] = -1;
+
+        int prefixSum = 0;
+
+        for (int i = 0; i < nums.size(); i++) {
+            prefixSum += nums[i];
+
+            int remainder = prefixSum % k;
+
+            // If same remainder was seen before,
+            // subarray between previous index + 1 and i
+            // has sum divisible by k
+            if (firstIndex.find(remainder) != firstIndex.end()) {
+                int length = i - firstIndex[remainder];
+
+                if (length >= 2) {
+                    return true;
+                }
+            } 
+            else {
+                // Store only first occurrence
+                firstIndex[remainder] = i;
+            }
+        }
+
+        return false;
+    }
+};
+

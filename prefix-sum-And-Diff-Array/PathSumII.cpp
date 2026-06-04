@@ -55,3 +55,134 @@ public:
         return ans;
     }
 };
+
+
+********************************************************************Brute Solution********************************************************************************
+
+class Solution {
+public:
+    vector<vector<int>> allPaths;
+
+    void collectPaths(TreeNode* root, vector<int> path) {
+        if (root == NULL) {
+            return;
+        }
+
+        // Add current node to path
+        path.push_back(root->val);
+
+        // If current node is a leaf, store this path
+        if (root->left == NULL && root->right == NULL) {
+            allPaths.push_back(path);
+            return;
+        }
+
+        // Explore left subtree
+        collectPaths(root->left, path);
+
+        // Explore right subtree
+        collectPaths(root->right, path);
+    }
+
+    vector<vector<int>> pathSum(TreeNode* root, int targetSum) {
+        vector<vector<int>> ans;
+
+        // Step 1: collect all root-to-leaf paths
+        vector<int> path;
+        collectPaths(root, path);
+
+        // Step 2: calculate sum of every path
+        for (auto p : allPaths) {
+            long long sum = 0;
+
+            for (int x : p) {
+                sum += x;
+            }
+
+            if (sum == targetSum) {
+                ans.push_back(p);
+            }
+        }
+
+        return ans;
+    }
+};
+********************************************************************Better Solution*********************************************************************************
+   
+
+class Solution {
+public:
+    vector<vector<int>> ans;
+
+    void dfs(TreeNode* root, int targetSum, long long currentSum, vector<int> path) {
+        if (root == NULL) {
+            return;
+        }
+
+        // Include current node
+        currentSum += root->val;
+        path.push_back(root->val);
+
+        // Check only at leaf node
+        if (root->left == NULL && root->right == NULL) {
+            if (currentSum == targetSum) {
+                ans.push_back(path);
+            }
+            return;
+        }
+
+        // Explore left subtree
+        dfs(root->left, targetSum, currentSum, path);
+
+        // Explore right subtree
+        dfs(root->right, targetSum, currentSum, path);
+    }
+
+    vector<vector<int>> pathSum(TreeNode* root, int targetSum) {
+        vector<int> path;
+        dfs(root, targetSum, 0, path);
+        return ans;
+    }
+};
+********************************************************************Optimal SOlution*********************************************************************************
+   
+class Solution {
+public:
+    vector<vector<int>> ans;
+
+    void dfs(TreeNode* root, int targetSum, vector<int>& path) {
+        if (root == NULL) {
+            return;
+        }
+
+        // Choose current node
+        path.push_back(root->val);
+
+        // Reduce targetSum by current node value
+        targetSum -= root->val;
+
+        // Check only when current node is a leaf
+        if (root->left == NULL && root->right == NULL) {
+            if (targetSum == 0) {
+                ans.push_back(path);
+            }
+        }
+
+        // Explore left subtree
+        dfs(root->left, targetSum, path);
+
+        // Explore right subtree
+        dfs(root->right, targetSum, path);
+
+        // Backtrack: remove current node before returning
+        path.pop_back();
+    }
+
+    vector<vector<int>> pathSum(TreeNode* root, int targetSum) {
+        vector<int> path;
+
+        dfs(root, targetSum, path);
+
+        return ans;
+    }
+};

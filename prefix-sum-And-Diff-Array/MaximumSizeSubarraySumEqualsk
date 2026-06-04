@@ -1,0 +1,92 @@
+// Maximum Size Subarray Sum Equals k
+
+*************************************************************************Brute Solution*****************************************************************************
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int maxSubArrayLen(vector<int>& nums, int k) {
+        int n = nums.size();
+        int maxLen = 0;
+
+        for (int i = 0; i < n; i++) {
+            for (int j = i; j < n; j++) {
+                int sum = 0;
+
+                for (int x = i; x <= j; x++) {
+                    sum += nums[x];
+                }
+
+                if (sum == k) {
+                    maxLen = max(maxLen, j - i + 1);
+                }
+            }
+        }
+
+        return maxLen;
+    }
+};
+*************************************************************************Better Solution****************************************************************************
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int maxSubArrayLen(vector<int>& nums, int k) {
+        int n = nums.size();
+        int maxLen = 0;
+
+        for (int i = 0; i < n; i++) {
+            int sum = 0;
+
+            for (int j = i; j < n; j++) {
+                sum += nums[j];
+
+                if (sum == k) {
+                    maxLen = max(maxLen, j - i + 1);
+                }
+            }
+        }
+
+        return maxLen;
+    }
+};
+*************************************************************************Optimal Solution***************************************************************************
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int maxSubArrayLen(vector<int>& nums, int k) {
+        // Stores the first index where a prefix sum appeared
+        unordered_map<int, int> firstIndex;
+
+        // Prefix sum before starting the array is 0 at index -1
+        firstIndex[0] = -1;
+
+        int prefixSum = 0;
+        int maxLen = 0;
+
+        for (int i = 0; i < nums.size(); i++) {
+            // Add current element to prefix sum
+            prefixSum += nums[i];
+
+            // We need a previous prefix sum equal to prefixSum - k
+            int needed = prefixSum - k;
+
+            // If needed prefix sum exists, then subarray sum is k
+            if (firstIndex.find(needed) != firstIndex.end()) {
+                int length = i - firstIndex[needed];
+                maxLen = max(maxLen, length);
+            }
+
+            // Store only first occurrence to maximize subarray length
+            if (firstIndex.find(prefixSum) == firstIndex.end()) {
+                firstIndex[prefixSum] = i;
+            }
+        }
+
+        return maxLen;
+    }
+};

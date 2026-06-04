@@ -65,3 +65,101 @@ public:
         return total - top - left + topLeft;
     }
 };
+
+********************************************************************Brute Solution*********************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class NumMatrix {
+private:
+    vector<vector<int>> matrix;
+
+public:
+    NumMatrix(vector<vector<int>>& matrix) {
+        this->matrix = matrix;
+    }
+
+    int sumRegion(int row1, int col1, int row2, int col2) {
+        int sum = 0;
+
+        for (int i = row1; i <= row2; i++) {
+            for (int j = col1; j <= col2; j++) {
+                sum += matrix[i][j];
+            }
+        }
+
+        return sum;
+    }
+};
+********************************************************************Better Solution*********************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class NumMatrix {
+private:
+    vector<vector<int>> rowPrefix;
+
+public:
+    NumMatrix(vector<vector<int>>& matrix) {
+        int m = matrix.size();
+        int n = matrix[0].size();
+
+        rowPrefix.resize(m, vector<int>(n, 0));
+
+        for (int i = 0; i < m; i++) {
+            rowPrefix[i][0] = matrix[i][0];
+
+            for (int j = 1; j < n; j++) {
+                rowPrefix[i][j] = rowPrefix[i][j - 1] + matrix[i][j];
+            }
+        }
+    }
+
+    int sumRegion(int row1, int col1, int row2, int col2) {
+        int sum = 0;
+
+        for (int i = row1; i <= row2; i++) {
+            int rowSum = rowPrefix[i][col2];
+
+            if (col1 > 0) {
+                rowSum -= rowPrefix[i][col1 - 1];
+            }
+
+            sum += rowSum;
+        }
+
+        return sum;
+    }
+};
+********************************************************************Optimal SOlution*********************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class NumMatrix {
+private:
+    vector<vector<int>> prefix;
+
+public:
+    NumMatrix(vector<vector<int>>& matrix) {
+        int m = matrix.size();
+        int n = matrix[0].size();
+
+        prefix.resize(m + 1, vector<int>(n + 1, 0));
+
+        for (int i = 1; i <= m; i++) {
+            for (int j = 1; j <= n; j++) {
+                prefix[i][j] = matrix[i - 1][j - 1]
+                             + prefix[i - 1][j]
+                             + prefix[i][j - 1]
+                             - prefix[i - 1][j - 1];
+            }
+        }
+    }
+
+    int sumRegion(int row1, int col1, int row2, int col2) {
+        return prefix[row2 + 1][col2 + 1]
+             - prefix[row1][col2 + 1]
+             - prefix[row2 + 1][col1]
+             + prefix[row1][col1];
+    }
+};

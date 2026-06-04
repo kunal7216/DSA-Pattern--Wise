@@ -1,0 +1,99 @@
+********************************************************************Brute Solution*********************************************************************************
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int subarraysDivByK(vector<int>& nums, int k) {
+        int n = nums.size();
+        int count = 0;
+
+        // Pick the starting index of the subarray
+        for (int i = 0; i < n; i++) {
+
+            // Pick the ending index of the subarray
+            for (int j = i; j < n; j++) {
+
+                int sum = 0;
+
+                // Calculate sum of subarray nums[i...j]
+                for (int x = i; x <= j; x++) {
+                    sum += nums[x];
+                }
+
+                // If sum is divisible by k, count it
+                if (sum % k == 0) {
+                    count++;
+                }
+            }
+        }
+
+        return count;
+    }
+};
+********************************************************************Better Solution*********************************************************************************
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int subarraysDivByK(vector<int>& nums, int k) {
+        int n = nums.size();
+        int count = 0;
+
+        // Pick every possible starting index
+        for (int i = 0; i < n; i++) {
+
+            int sum = 0;
+
+            // Extend subarray from i to j
+            for (int j = i; j < n; j++) {
+
+                // Add current element into running sum
+                sum += nums[j];
+
+                // Check if current subarray sum is divisible by k
+                if (sum % k == 0) {
+                    count++;
+                }
+            }
+        }
+
+        return count;
+    }
+};
+********************************************************************Optimal SOlution*********************************************************************************
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int subarraysDivByK(vector<int>& nums, int k) {
+        // freq[rem] stores how many prefix sums had remainder rem
+        vector<int> freq(k, 0);
+
+        // Empty prefix sum has remainder 0
+        // This is needed to count subarrays starting from index 0
+        freq[0] = 1;
+
+        int prefixSum = 0;
+        int count = 0;
+
+        for (int num : nums) {
+            // Add current number to prefix sum
+            prefixSum += num;
+
+            // Normalize remainder to handle negative numbers
+            int rem = ((prefixSum % k) + k) % k;
+
+            // If this remainder appeared before,
+            // each previous occurrence forms a valid subarray
+            count += freq[rem];
+
+            // Store current remainder
+            freq[rem]++;
+        }
+
+        return count;
+    }
+};

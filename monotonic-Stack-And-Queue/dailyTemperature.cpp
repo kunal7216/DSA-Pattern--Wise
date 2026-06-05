@@ -46,3 +46,117 @@ public:
         return res;
     }
 };
+
+
+******************************************************************Brute solution*********************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> dailyTemperatures(vector<int>& temperatures) {
+        int n = temperatures.size();
+
+        // Initially, all answers are 0
+        vector<int> ans(n, 0);
+
+        // Check each day
+        for (int i = 0; i < n; i++) {
+
+            // Check all future days
+            for (int j = i + 1; j < n; j++) {
+
+                // If future day is warmer
+                if (temperatures[j] > temperatures[i]) {
+
+                    // Number of days waited
+                    ans[i] = j - i;
+
+                    // First warmer day found, so stop
+                    break;
+                }
+            }
+        }
+
+        return ans;
+    }
+};
+******************************************************************Better solution*********************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> dailyTemperatures(vector<int>& temperatures) {
+        int n = temperatures.size();
+
+        // Answer array initialized with 0
+        vector<int> ans(n, 0);
+
+        // Traverse from right to left
+        for (int i = n - 2; i >= 0; i--) {
+
+            // Start from next day
+            int j = i + 1;
+
+            // Keep jumping in future
+            while (j < n) {
+
+                // If warmer day found
+                if (temperatures[j] > temperatures[i]) {
+                    ans[i] = j - i;
+                    break;
+                }
+
+                // If j itself has no warmer future day,
+                // then current i also cannot get answer through j
+                if (ans[j] == 0) {
+                    break;
+                }
+
+                // Jump to next warmer day of j
+                j = j + ans[j];
+            }
+        }
+
+        return ans;
+    }
+};
+******************************************************************Optimal Solution*********************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> dailyTemperatures(vector<int>& temperatures) {
+        int n = temperatures.size();
+
+        // Answer array initialized with 0
+        vector<int> ans(n, 0);
+
+        // Stack stores indices of days
+        // whose next warmer day is not found yet
+        stack<int> st;
+
+        // Traverse from left to right
+        for (int i = 0; i < n; i++) {
+
+            // If current day is warmer than previous pending days
+            while (!st.empty() && temperatures[i] > temperatures[st.top()]) {
+
+                // Previous unresolved day
+                int prevIndex = st.top();
+                st.pop();
+
+                // Current day is the next warmer day
+                ans[prevIndex] = i - prevIndex;
+            }
+
+            // Current day is now unresolved
+            st.push(i);
+        }
+
+        return ans;
+    }
+};
+    

@@ -75,3 +75,90 @@ public:
         return true;
     }
 };
+
+**************************************************************Brute Solution*****************************************************************************************
+    class Solution {
+public:
+    bool isAnagram(string s, string t) {
+        // If lengths are different, they cannot be anagrams
+        if (s.length() != t.length()) {
+            return false;
+        }
+
+        int n = s.length();
+
+        // This array tells whether character at index j of t is already used or not
+        vector<bool> used(n, false);
+
+        // Try to match every character of s with some unused character of t
+        for (int i = 0; i < n; i++) {
+            bool found = false;
+
+            for (int j = 0; j < n; j++) {
+                // If t[j] is not used and matches s[i]
+                if (!used[j] && s[i] == t[j]) {
+                    used[j] = true;
+                    found = true;
+                    break;
+                }
+            }
+
+            // If current character of s is not found in t
+            if (!found) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+};
+**************************************************************Better Solution*****************************************************************************************
+    class Solution {
+public:
+    bool isAnagram(string s, string t) {
+        // If lengths are different, they cannot be anagrams
+        if (s.length() != t.length()) {
+            return false;
+        }
+
+        // Sort both strings
+        sort(s.begin(), s.end());
+        sort(t.begin(), t.end());
+
+        // If sorted strings are equal, they are anagrams
+        return s == t;
+    }
+};
+**************************************************************Optimal Solution*****************************************************************************************
+    class Solution {
+public:
+    bool isAnagram(string s, string t) {
+        // If lengths are different, they cannot be anagrams
+        if (s.length() != t.length()) {
+            return false;
+        }
+
+        // There are 26 lowercase English letters
+        vector<int> freq(26, 0);
+
+        // Increase count for characters in s
+        for (char ch : s) {
+            freq[ch - 'a']++;
+        }
+
+        // Decrease count for characters in t
+        for (char ch : t) {
+            freq[ch - 'a']--;
+        }
+
+        // If any count is not zero, strings are not anagrams
+        for (int count : freq) {
+            if (count != 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+};
+

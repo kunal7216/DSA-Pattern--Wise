@@ -46,3 +46,124 @@ public:
         return res;
     }
 };
+
+
+******************************************************************Brute solution*********************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> nextGreaterElement(vector<int>& nums1, vector<int>& nums2) {
+        vector<int> ans;
+
+        // Traverse every element of nums1
+        for (int i = 0; i < nums1.size(); i++) {
+            int target = nums1[i];
+
+            // Step 1: Find target in nums2
+            int index = -1;
+            for (int j = 0; j < nums2.size(); j++) {
+                if (nums2[j] == target) {
+                    index = j;
+                    break;
+                }
+            }
+
+            // Step 2: Search right side of target
+            int nextGreater = -1;
+            for (int j = index + 1; j < nums2.size(); j++) {
+                if (nums2[j] > target) {
+                    nextGreater = nums2[j];
+                    break;
+                }
+            }
+
+            ans.push_back(nextGreater);
+        }
+
+        return ans;
+    }
+};
+******************************************************************Better solution*********************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> nextGreaterElement(vector<int>& nums1, vector<int>& nums2) {
+        unordered_map<int, int> indexMap;
+
+        // Store index of each element in nums2
+        for (int i = 0; i < nums2.size(); i++) {
+            indexMap[nums2[i]] = i;
+        }
+
+        vector<int> ans;
+
+        // Process every element in nums1
+        for (int i = 0; i < nums1.size(); i++) {
+            int target = nums1[i];
+
+            // Directly get index from map
+            int index = indexMap[target];
+
+            int nextGreater = -1;
+
+            // Search right side of target in nums2
+            for (int j = index + 1; j < nums2.size(); j++) {
+                if (nums2[j] > target) {
+                    nextGreater = nums2[j];
+                    break;
+                }
+            }
+
+            ans.push_back(nextGreater);
+        }
+
+        return ans;
+    }
+};
+******************************************************************Optimal Solution*********************************************************************************
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> nextGreaterElement(vector<int>& nums1, vector<int>& nums2) {
+        unordered_map<int, int> nextGreater;
+        stack<int> st;
+
+        // Traverse nums2 from right to left
+        for (int i = nums2.size() - 1; i >= 0; i--) {
+            int current = nums2[i];
+
+            // Remove all elements smaller than or equal to current
+            // They cannot be next greater for current
+            while (!st.empty() && st.top() <= current) {
+                st.pop();
+            }
+
+            // If stack is empty, no greater element exists on right side
+            if (st.empty()) {
+                nextGreater[current] = -1;
+            } 
+            else {
+                // Stack top is the nearest greater element
+                nextGreater[current] = st.top();
+            }
+
+            // Push current element for elements on the left side
+            st.push(current);
+        }
+
+        vector<int> ans;
+
+        // Build answer for nums1 using precomputed map
+        for (int i = 0; i < nums1.size(); i++) {
+            ans.push_back(nextGreater[nums1[i]]);
+        }
+
+        return ans;
+    }
+};

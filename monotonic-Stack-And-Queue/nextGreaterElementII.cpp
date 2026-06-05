@@ -37,3 +37,100 @@ public:
         return ans;
     }
 };
+
+
+******************************************************************Brute solution*********************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> nextGreaterElements(vector<int>& nums) {
+        int n = nums.size();
+
+        vector<int> ans(n, -1);
+
+        for (int i = 0; i < n; i++) {
+            
+            for (int step = 1; step < n; step++) {
+                
+                int nextIndex = (i + step) % n;
+
+                if (nums[nextIndex] > nums[i]) {
+                    ans[i] = nums[nextIndex];
+                    break;
+                }
+            }
+        }
+
+        return ans;
+    }
+};
+******************************************************************Better solution*********************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> nextGreaterElements(vector<int>& nums) {
+        int n = nums.size();
+
+        vector<int> doubled;
+
+        for (int i = 0; i < n; i++) {
+            doubled.push_back(nums[i]);
+        }
+
+        for (int i = 0; i < n; i++) {
+            doubled.push_back(nums[i]);
+        }
+
+        vector<int> ans(n, -1);
+
+        for (int i = 0; i < n; i++) {
+            
+            for (int j = i + 1; j < i + n; j++) {
+                
+                if (doubled[j] > nums[i]) {
+                    ans[i] = doubled[j];
+                    break;
+                }
+            }
+        }
+
+        return ans;
+    }
+};
+******************************************************************Optimal Solution*********************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> nextGreaterElements(vector<int>& nums) {
+        int n = nums.size();
+
+        vector<int> ans(n, -1);
+
+        stack<int> st;
+
+        for (int i = 2 * n - 1; i >= 0; i--) {
+            
+            int index = i % n;
+
+            while (!st.empty() && st.top() <= nums[index]) {
+                st.pop();
+            }
+
+            if (i < n) {
+                if (!st.empty()) {
+                    ans[index] = st.top();
+                }
+            }
+
+            st.push(nums[index]);
+        }
+
+        return ans;
+    }
+};

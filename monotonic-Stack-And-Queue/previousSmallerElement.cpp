@@ -22,3 +22,108 @@ vector<int> previousSmallerElement(vector<int> &arr) {
 
     return result;
 }
+
+******************************************************************Brute solution*********************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> nextGreaterElements(vector<int>& nums) {
+        int n = nums.size();
+
+        vector<int> ans(n, -1);
+
+        for (int i = 0; i < n; i++) {
+
+            // Check next n - 1 elements circularly
+            for (int step = 1; step < n; step++) {
+
+                int nextIndex = (i + step) % n;
+
+                if (nums[nextIndex] > nums[i]) {
+                    ans[i] = nums[nextIndex];
+                    break;
+                }
+            }
+        }
+
+        return ans;
+    }
+};
+******************************************************************Better solution*********************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> nextGreaterElements(vector<int>& nums) {
+        int n = nums.size();
+
+        vector<int> doubled;
+
+        // Copy nums once
+        for (int i = 0; i < n; i++) {
+            doubled.push_back(nums[i]);
+        }
+
+        // Copy nums again to simulate circular array
+        for (int i = 0; i < n; i++) {
+            doubled.push_back(nums[i]);
+        }
+
+        vector<int> ans(n, -1);
+
+        for (int i = 0; i < n; i++) {
+
+            // Search next n - 1 positions
+            for (int j = i + 1; j < i + n; j++) {
+
+                if (doubled[j] > nums[i]) {
+                    ans[i] = doubled[j];
+                    break;
+                }
+            }
+        }
+
+        return ans;
+    }
+};
+******************************************************************Optimal Solution*********************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> nextGreaterElements(vector<int>& nums) {
+        int n = nums.size();
+
+        vector<int> ans(n, -1);
+
+        stack<int> st;
+
+        // Traverse twice because array is circular
+        for (int i = 2 * n - 1; i >= 0; i--) {
+
+            int index = i % n;
+
+            // Remove smaller or equal elements
+            // They cannot be next greater
+            while (!st.empty() && st.top() <= nums[index]) {
+                st.pop();
+            }
+
+            // Fill answer only during the real pass
+            if (i < n) {
+                if (!st.empty()) {
+                    ans[index] = st.top();
+                }
+            }
+
+            // Current element becomes a candidate for left-side elements
+            st.push(nums[index]);
+        }
+
+        return ans;
+    }
+};

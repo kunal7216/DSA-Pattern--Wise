@@ -54,3 +54,102 @@ public:
         return q;
     }
 };
+
+**************************************************************Brute Solution***************************************************************************************
+
+class Solution {
+public:
+    vector<int> findAnagrams(string s, string p) {
+        vector<int> ans;
+
+        int n = s.size();
+        int m = p.size();
+
+        if (m > n) return ans;
+
+        string sortedP = p;
+        sort(sortedP.begin(), sortedP.end());
+
+        for (int i = 0; i <= n - m; i++) {
+            string sub = s.substr(i, m);
+            sort(sub.begin(), sub.end());
+
+            if (sub == sortedP) {
+                ans.push_back(i);
+            }
+        }
+
+        return ans;
+    }
+};
+**************************************************************Better Solution***************************************************************************************
+
+class Solution {
+public:
+    vector<int> findAnagrams(string s, string p) {
+        vector<int> ans;
+
+        int n = s.size();
+        int m = p.size();
+
+        if (m > n) return ans;
+
+        vector<int> pCount(26, 0);
+
+        for (char ch : p) {
+            pCount[ch - 'a']++;
+        }
+
+        for (int i = 0; i <= n - m; i++) {
+            vector<int> windowCount(26, 0);
+
+            for (int j = i; j < i + m; j++) {
+                windowCount[s[j] - 'a']++;
+            }
+
+            if (windowCount == pCount) {
+                ans.push_back(i);
+            }
+        }
+
+        return ans;
+    }
+};
+**************************************************************Optimal Solution***************************************************************************************
+
+
+class Solution {
+public:
+    vector<int> findAnagrams(string s, string p) {
+        vector<int> ans;
+
+        int n = s.size();
+        int m = p.size();
+
+        if (m > n) return ans;
+
+        vector<int> pCount(26, 0);
+        vector<int> windowCount(26, 0);
+
+        for (int i = 0; i < m; i++) {
+            pCount[p[i] - 'a']++;
+            windowCount[s[i] - 'a']++;
+        }
+
+        if (pCount == windowCount) {
+            ans.push_back(0);
+        }
+
+        for (int i = m; i < n; i++) {
+            windowCount[s[i] - 'a']++;
+
+            windowCount[s[i - m] - 'a']--;
+
+            if (pCount == windowCount) {
+                ans.push_back(i - m + 1);
+            }
+        }
+
+        return ans;
+    }
+};

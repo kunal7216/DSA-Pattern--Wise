@@ -2,110 +2,122 @@
 // https://leetcode.com/problems/group-anagrams/
 
 
-// using sorting
-class Solution
-{
+****************************************************************Brute Solution*************************************************************************************
+
+class Solution {
 public:
-    vector<vector<string>> groupAnagrams(vector<string> &strs)
-    {
-        // Hash map to group anagrams
-        // Key   -> sorted version of the string
-        // Value -> list of strings that are anagrams of each other
-        unordered_map<string, vector<string>> ans;
-
-        // Traverse each string in the input list
-        for (string &s : strs)
-        {
-            // Create a copy of the current string
-            string key = s;
-
-            // Sort the copied string
-            // All anagrams will result in the same sorted string
-            sort(key.begin(), key.end());
-
-            // Store the original string under its sorted key
-            ans[key].push_back(s);
+    bool isAnagram(string a, string b) {
+        // If lengths are different, they cannot be anagrams
+        if (a.length() != b.length()) {
+            return false;
         }
 
-        // Result vector to store grouped anagrams
+        // Sort both strings
+        sort(a.begin(), a.end());
+        sort(b.begin(), b.end());
+
+        // If sorted strings are same, they are anagrams
+        return a == b;
+    }
+
+    vector<vector<string>> groupAnagrams(vector<string>& strs) {
+        int n = strs.size();
+
+        // visited[i] tells whether strs[i] is already grouped
+        vector<bool> visited(n, false);
+
         vector<vector<string>> result;
 
-        // Extract all groups from the hash map
-        for (auto &entry : ans)
-        {
-            // entry.second contains all anagrams for one key
-            result.push_back(entry.second);
+        for (int i = 0; i < n; i++) {
+            // If current string is already grouped, skip it
+            if (visited[i]) {
+                continue;
+            }
+
+            vector<string> group;
+
+            // Add current string to group
+            group.push_back(strs[i]);
+            visited[i] = true;
+
+            // Compare current string with all remaining strings
+            for (int j = i + 1; j < n; j++) {
+                if (!visited[j] && isAnagram(strs[i], strs[j])) {
+                    group.push_back(strs[j]);
+                    visited[j] = true;
+                }
+            }
+
+            result.push_back(group);
         }
 
-        // Return the grouped anagrams
         return result;
     }
 };
+****************************************************************Better Solution*************************************************************************************
 
-
-// using frequency count
-class Solution
-{
+class Solution {
 public:
-    // Helper function to generate a unique frequency-based key for a string
-    string getFrequencyString(const string &str)
-    {
-        // Array to store frequency of each character (a–z)
-        vector<int> freq(26, 0);
+    vector<vector<string>> groupAnagrams(vector<string>& strs) {
+        // Map sorted string key to list of anagrams
+        unordered_map<string, vector<string>> mp;
 
-        // Count occurrences of each character in the string
-        for (char c : str)
-        {
-            freq[c - 'a']++;
+        for (string word : strs) {
+            // Create key by sorting the word
+            string key = word;
+            sort(key.begin(), key.end());
+
+            // All anagrams will have the same sorted key
+            mp[key].push_back(word);
         }
 
-        // Build a frequency string as the key
-        // Example: "aabcc" → "a2b1c2"
-        string frequencyString;
-        for (int i = 0; i < 26; i++)
-        {
-            if (freq[i] > 0)
-            {
-                frequencyString += char('a' + i);      // character
-                frequencyString += to_string(freq[i]); // its count
-            }
-        }
-        return frequencyString;
-    }
-
-    vector<vector<string>> groupAnagrams(vector<string> &strs)
-    {
-        // Edge case: if input is empty, return empty result
-        if (strs.size() == 0)
-        {
-            return {};
-        }
-
-        // Hash map to group anagrams
-        // Key   -> frequency string (unique representation)
-        // Value -> list of anagram strings
-        unordered_map<string, vector<string>> frequencyStringsMap;
-
-        // Process each string in the input
-        for (string str : strs)
-        {
-            // Generate frequency-based key for current string
-            string frequencyString = getFrequencyString(str);
-
-            // Insert the string into the corresponding anagram group
-            frequencyStringsMap[frequencyString].push_back(str);
-        }
-
-        // Vector to store the final grouped anagrams
         vector<vector<string>> result;
 
-        // Collect all anagram groups from the map
-        for (auto &entry : frequencyStringsMap)
-        {
-            result.push_back(entry.second);
+        // Convert map values into answer
+        for (auto it : mp) {
+            result.push_back(it.second);
         }
 
-        // Return the grouped anagrams
+        return result;
+    }
+};
+****************************************************************Optimal Solution*************************************************************************************
+
+
+class Solution {
+public:
+    vector<vector<string>> groupAnagrams(vector<string>& strs) {
+        // Key: frequency pattern of characters
+        // Value: group of anagrams
+        unordered_map<string, vector<string>> mp;
+
+        for (string word : strs) {
+            vector<int> freq(26, 0);
+
+            // Count frequency of each character
+            for (char ch : word) {
+                freq[ch - 'a']++;
+            }
+
+            // Create a unique key from frequency array
+            string key = "";
+
+            for (int i = 0; i < 26; i++) {
+                key += "#";
+                key += to_string(freq[i]);
+            }
+
+            // Same frequency key means same anagram group
+            mp[key].push_back(word);
+        }
+
+        vector<vector<string>> result;
+
+        // Collect all groups
+        for (auto it : mp) {
+            result.push_back(it.second);
+        }
+
         return result;
     }
 };

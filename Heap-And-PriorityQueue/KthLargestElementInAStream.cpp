@@ -42,3 +42,86 @@ public:
         return minHeap.top();
     }
 };
+
+
+***************************************************************Brute Solution*****************************************************************************
+
+class KthLargest {
+private:
+    int k;
+    vector<int> stream;
+
+public:
+    KthLargest(int k, vector<int>& nums) {
+        this->k = k;
+        stream = nums;
+    }
+
+    int add(int val) {
+        stream.push_back(val);
+
+        sort(stream.begin(), stream.end());
+
+        int n = stream.size();
+
+        return stream[n - k];
+    }
+};
+***************************************************************Better Solution*****************************************************************************
+
+
+class KthLargest {
+private:
+    int k;
+    vector<int> stream;
+
+public:
+    KthLargest(int k, vector<int>& nums) {
+        this->k = k;
+        stream = nums;
+
+        sort(stream.begin(), stream.end());
+    }
+
+    int add(int val) {
+        auto pos = lower_bound(stream.begin(), stream.end(), val);
+
+        stream.insert(pos, val);
+
+        int n = stream.size();
+
+        return stream[n - k];
+    }
+};
+***************************************************************Optimal SOlution*****************************************************************************
+
+
+class KthLargest {
+private:
+    int k;
+
+    priority_queue<int, vector<int>, greater<int>> minHeap;
+
+public:
+    KthLargest(int k, vector<int>& nums) {
+        this->k = k;
+
+        for (int num : nums) {
+            minHeap.push(num);
+
+            if (minHeap.size() > k) {
+                minHeap.pop();
+            }
+        }
+    }
+
+    int add(int val) {
+        minHeap.push(val);
+
+        if (minHeap.size() > k) {
+            minHeap.pop();
+        }
+
+        return minHeap.top();
+    }
+};

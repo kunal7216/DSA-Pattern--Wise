@@ -1,29 +1,85 @@
-class Solution
-{
+*****************************************************************Brute Solution*************************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
 public:
-    bool containsNearbyDuplicate(vector<int> &nums, int k)
-    {
-        // HashMap to store the last index at which each value was seen
-        unordered_map<int, int> seen;
+    bool containsNearbyDuplicate(vector<int>& nums, int k) {
+        int n = nums.size();
 
-        // Traverse the array
-        for (int i = 0; i < nums.size(); i++)
-        {
-            int val = nums[i];
+        // Check every pair of indices
+        for (int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
 
-            // Check if the value has been seen before
-            // and whether the distance between indices is <= k
-            if (seen.find(val) != seen.end() && i - seen[val] <= k)
-            {
-                return true; // Nearby duplicate found
+                // If distance becomes greater than k,
+                // no need to check further for this i
+                if (j - i > k) {
+                    break;
+                }
+
+                // Same value found within distance k
+                if (nums[i] == nums[j]) {
+                    return true;
+                }
             }
-
-            // Update the index of the current value
-            // (always store the most recent index)
-            seen[val] = i;
         }
 
-        // No nearby duplicates found
+        return false;
+    }
+};
+*****************************************************************Better Solution*************************************************************************************
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    bool containsNearbyDuplicate(vector<int>& nums, int k) {
+        unordered_map<int, int> lastIndex;
+
+        for (int i = 0; i < nums.size(); i++) {
+            int value = nums[i];
+
+            // If value was seen before
+            if (lastIndex.find(value) != lastIndex.end()) {
+
+                // Check distance between current index and last index
+                if (i - lastIndex[value] <= k) {
+                    return true;
+                }
+            }
+
+            // Update latest index of this value
+            lastIndex[value] = i;
+        }
+
+        return false;
+    }
+};
+*****************************************************************Optimal solution*************************************************************************************
+#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    bool containsNearbyDuplicate(vector<int>& nums, int k) {
+        unordered_set<int> window;
+
+        for (int i = 0; i < nums.size(); i++) {
+
+            // If current element already exists in last k elements
+            if (window.find(nums[i]) != window.end()) {
+                return true;
+            }
+
+            // Add current element into window
+            window.insert(nums[i]);
+
+            // Keep window size at most k
+            if (window.size() > k) {
+                window.erase(nums[i - k]);
+            }
+        }
+
         return false;
     }
 };

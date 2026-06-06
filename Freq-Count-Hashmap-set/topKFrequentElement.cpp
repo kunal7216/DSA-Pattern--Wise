@@ -58,3 +58,108 @@ public:
         return res;
     }
 };
+
+*************************************************************Brute Solution****************************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> topKFrequent(vector<int>& nums, int k) {
+        unordered_map<int, int> freq;
+
+        for (int num : nums) {
+            freq[num]++;
+        }
+
+        vector<int> ans;
+
+        for (int i = 0; i < k; i++) {
+            int maxFreq = -1;
+            int maxElement = -1;
+
+            for (auto it : freq) {
+                if (it.second > maxFreq) {
+                    maxFreq = it.second;
+                    maxElement = it.first;
+                }
+            }
+
+            ans.push_back(maxElement);
+            freq[maxElement] = -1;
+        }
+
+        return ans;
+    }
+};
+*************************************************************Better Solution****************************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> topKFrequent(vector<int>& nums, int k) {
+        unordered_map<int, int> freq;
+
+        for (int num : nums) {
+            freq[num]++;
+        }
+
+        vector<pair<int, int>> v;
+
+        for (auto it : freq) {
+            v.push_back({it.first, it.second});
+        }
+
+        sort(v.begin(), v.end(), [](auto &a, auto &b) {
+            return a.second > b.second;
+        });
+
+        vector<int> ans;
+
+        for (int i = 0; i < k; i++) {
+            ans.push_back(v[i].first);
+        }
+
+        return ans;
+    }
+};
+*************************************************************Optimal Solution****************************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> topKFrequent(vector<int>& nums, int k) {
+        unordered_map<int, int> freq;
+
+        for (int num : nums) {
+            freq[num]++;
+        }
+
+        int n = nums.size();
+
+        vector<vector<int>> bucket(n + 1);
+
+        for (auto it : freq) {
+            int element = it.first;
+            int count = it.second;
+
+            bucket[count].push_back(element);
+        }
+
+        vector<int> ans;
+
+        for (int i = n; i >= 1; i--) {
+            for (int element : bucket[i]) {
+                ans.push_back(element);
+
+                if (ans.size() == k) {
+                    return ans;
+                }
+            }
+        }
+
+        return ans;
+    }
+};

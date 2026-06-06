@@ -38,3 +38,89 @@ public:
         return minpq.top();
     }
 };
+
+*********************************************************Brute Selection***********************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int findKthLargest(vector<int>& nums, int k) {
+        sort(nums.begin(), nums.end(), greater<int>());
+
+        return nums[k - 1];
+    }
+};
+*********************************************************Better Selection***********************************************************************************
+    #include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int findKthLargest(vector<int>& nums, int k) {
+        priority_queue<int, vector<int>, greater<int>> minHeap;
+
+        for (int num : nums) {
+            minHeap.push(num);
+
+            if (minHeap.size() > k) {
+                minHeap.pop();
+            }
+        }
+
+        return minHeap.top();
+    }
+};
+*********************************************************Optimal Solution***********************************************************************************
+
+
+class Solution {
+public:
+    int findKthLargest(vector<int>& nums, int k) {
+        int left = 0;
+        int right = nums.size() - 1;
+        int target = k - 1; // index in descending order
+
+        srand(time(0));
+
+        while (left <= right) {
+            int pivotIndex = left + rand() % (right - left + 1);
+            int pivot = nums[pivotIndex];
+
+            int lt = left;
+            int i = left;
+            int gt = right;
+
+            // Partition in descending order:
+            // nums[left...lt-1] > pivot
+            // nums[lt...gt] == pivot
+            // nums[gt+1...right] < pivot
+            while (i <= gt) {
+                if (nums[i] > pivot) {
+                    swap(nums[i], nums[lt]);
+                    i++;
+                    lt++;
+                }
+                else if (nums[i] < pivot) {
+                    swap(nums[i], nums[gt]);
+                    gt--;
+                }
+                else {
+                    i++;
+                }
+            }
+
+            if (target >= lt && target <= gt) {
+                return nums[target];
+            }
+            else if (target < lt) {
+                right = lt - 1;
+            }
+            else {
+                left = gt + 1;
+            }
+        }
+
+        return -1;
+    }
+};

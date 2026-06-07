@@ -41,3 +41,109 @@ public:
         return tasks.size() + idle;
     }
 };
+
+
+******************************************************************Brute Solution*************************************************************************
+
+
+class Solution {
+public:
+    int leastInterval(vector<char>& tasks, int n) {
+        vector<int> freq(26, 0);
+        vector<int> lastTime(26, -1e9);
+
+        for (char task : tasks) {
+            freq[task - 'A']++;
+        }
+
+        int totalTasks = tasks.size();
+        int completed = 0;
+        int time = 0;
+
+        while (completed < totalTasks) {
+            int bestTask = -1;
+            int maxFreq = 0;
+
+            for (int i = 0; i < 26; i++) {
+                if (freq[i] > 0 && time - lastTime[i] > n) {
+                    if (freq[i] > maxFreq) {
+                        maxFreq = freq[i];
+                        bestTask = i;
+                    }
+                }
+            }
+
+            if (bestTask != -1) {
+                freq[bestTask]--;
+                lastTime[bestTask] = time;
+                completed++;
+            }
+
+            time++;
+        }
+
+        return time;
+    }
+};
+******************************************************************Better Solution*************************************************************************
+
+
+class Solution {
+public:
+    int leastInterval(vector<char>& tasks, int n) {
+        vector<int> freq(26, 0);
+
+        for (char task : tasks) {
+            freq[task - 'A']++;
+        }
+
+        int maxFreq = 0;
+
+        for (int count : freq) {
+            maxFreq = max(maxFreq, count);
+        }
+
+        int maxFreqTaskCount = 0;
+
+        for (int count : freq) {
+            if (count == maxFreq) {
+                maxFreqTaskCount++;
+            }
+        }
+
+        int formulaAnswer = (maxFreq - 1) * (n + 1) + maxFreqTaskCount;
+
+        return max((int)tasks.size(), formulaAnswer);
+    }
+};
+******************************************************************Optimal Solution*************************************************************************
+
+
+class Solution {
+public:
+    int leastInterval(vector<char>& tasks, int n) {
+        vector<int> freq(26, 0);
+
+        for (char task : tasks) {
+            freq[task - 'A']++;
+        }
+
+        int maxFreq = 0;
+
+        for (int count : freq) {
+            maxFreq = max(maxFreq, count);
+        }
+
+        int maxFreqTaskCount = 0;
+
+        for (int count : freq) {
+            if (count == maxFreq) {
+                maxFreqTaskCount++;
+            }
+        }
+
+        int formulaAnswer = (maxFreq - 1) * (n + 1) + maxFreqTaskCount;
+
+        return max((int)tasks.size(), formulaAnswer);
+    }
+};

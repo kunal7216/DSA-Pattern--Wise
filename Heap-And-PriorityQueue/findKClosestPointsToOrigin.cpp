@@ -61,3 +61,94 @@ public:
         return ans;
     }
 };
+
+******************************************************************Brute Solution*************************************************************************
+    class Solution {
+public:
+    int distance(vector<int>& point) {
+        int x = point[0];
+        int y = point[1];
+        return x * x + y * y;
+    }
+
+    vector<vector<int>> kClosest(vector<vector<int>>& points, int k) {
+        vector<vector<int>> ans;
+        vector<bool> used(points.size(), false);
+
+        for (int count = 0; count < k; count++) {
+            int minIndex = -1;
+            int minDist = INT_MAX;
+
+            for (int i = 0; i < points.size(); i++) {
+                if (!used[i]) {
+                    int dist = distance(points[i]);
+
+                    if (dist < minDist) {
+                        minDist = dist;
+                        minIndex = i;
+                    }
+                }
+            }
+
+            used[minIndex] = true;
+            ans.push_back(points[minIndex]);
+        }
+
+        return ans;
+    }
+};
+******************************************************************Better Solution*************************************************************************
+    class Solution {
+public:
+    int distance(vector<int>& point) {
+        int x = point[0];
+        int y = point[1];
+        return x * x + y * y;
+    }
+
+    vector<vector<int>> kClosest(vector<vector<int>>& points, int k) {
+        sort(points.begin(), points.end(), [&](vector<int>& a, vector<int>& b) {
+            return distance(a) < distance(b);
+        });
+
+        vector<vector<int>> ans;
+
+        for (int i = 0; i < k; i++) {
+            ans.push_back(points[i]);
+        }
+
+        return ans;
+    }
+};
+******************************************************************Optimal Solution*************************************************************************
+    class Solution {
+public:
+    int distance(vector<int>& point) {
+        int x = point[0];
+        int y = point[1];
+        return x * x + y * y;
+    }
+
+    vector<vector<int>> kClosest(vector<vector<int>>& points, int k) {
+        priority_queue<pair<int, vector<int>>> maxHeap;
+
+        for (auto& point : points) {
+            int dist = distance(point);
+
+            maxHeap.push({dist, point});
+
+            if (maxHeap.size() > k) {
+                maxHeap.pop();
+            }
+        }
+
+        vector<vector<int>> ans;
+
+        while (!maxHeap.empty()) {
+            ans.push_back(maxHeap.top().second);
+            maxHeap.pop();
+        }
+
+        return ans;
+    }
+};

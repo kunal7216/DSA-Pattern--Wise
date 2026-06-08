@@ -55,3 +55,123 @@ public:
         return head->next;
     }
 };
+
+*****************************************************************Brute Solution********************************************************************************
+  
+
+class Solution {
+public:
+    ListNode* mergeKLists(vector<ListNode*>& lists) {
+        vector<int> values;
+
+        // Step 1: Store all values from all linked lists
+        for (int i = 0; i < lists.size(); i++) {
+            ListNode* temp = lists[i];
+
+            while (temp != nullptr) {
+                values.push_back(temp->val);
+                temp = temp->next;
+            }
+        }
+
+        // Step 2: Sort all values
+        sort(values.begin(), values.end());
+
+        // Step 3: Build new linked list
+        ListNode* dummy = new ListNode(-1);
+        ListNode* tail = dummy;
+
+        for (int val : values) {
+            tail->next = new ListNode(val);
+            tail = tail->next;
+        }
+
+        return dummy->next;
+    }
+};
+*****************************************************************Better Solution********************************************************************************
+
+
+class Solution {
+public:
+    ListNode* mergeTwoLists(ListNode* list1, ListNode* list2) {
+        ListNode* dummy = new ListNode(-1);
+        ListNode* tail = dummy;
+
+        while (list1 != nullptr && list2 != nullptr) {
+            if (list1->val <= list2->val) {
+                tail->next = list1;
+                list1 = list1->next;
+            } else {
+                tail->next = list2;
+                list2 = list2->next;
+            }
+
+            tail = tail->next;
+        }
+
+        if (list1 != nullptr) {
+            tail->next = list1;
+        }
+
+        if (list2 != nullptr) {
+            tail->next = list2;
+        }
+
+        return dummy->next;
+    }
+
+    ListNode* mergeKLists(vector<ListNode*>& lists) {
+        if (lists.empty()) {
+            return nullptr;
+        }
+
+        ListNode* result = nullptr;
+
+        for (int i = 0; i < lists.size(); i++) {
+            result = mergeTwoLists(result, lists[i]);
+        }
+
+        return result;
+    }
+};
+*****************************************************************Optimal Solution********************************************************************************
+ 
+
+class Solution {
+public:
+    struct Compare {
+        bool operator()(ListNode* a, ListNode* b) {
+            return a->val > b->val;
+        }
+    };
+
+    ListNode* mergeKLists(vector<ListNode*>& lists) {
+        priority_queue<ListNode*, vector<ListNode*>, Compare> minHeap;
+
+        // Step 1: Push head of every non-empty list
+        for (ListNode* head : lists) {
+            if (head != nullptr) {
+                minHeap.push(head);
+            }
+        }
+
+        ListNode* dummy = new ListNode(-1);
+        ListNode* tail = dummy;
+
+        // Step 2: Always take the smallest node
+        while (!minHeap.empty()) {
+            ListNode* smallest = minHeap.top();
+            minHeap.pop();
+
+            tail->next = smallest;
+            tail = tail->next;
+
+            if (smallest->next != nullptr) {
+                minHeap.push(smallest->next);
+            }
+        }
+
+        return dummy->next;
+    }
+};

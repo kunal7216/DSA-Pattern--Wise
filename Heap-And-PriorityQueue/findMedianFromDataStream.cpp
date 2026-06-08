@@ -63,3 +63,105 @@ public:
         }
     }
 };
+
+*****************************************************************Brute Solution********************************************************************************
+    class MedianFinder {
+private:
+    vector<int> nums;
+
+public:
+    MedianFinder() {
+        
+    }
+
+    void addNum(int num) {
+        nums.push_back(num);
+    }
+
+    double findMedian() {
+        vector<int> temp = nums;
+
+        sort(temp.begin(), temp.end());
+
+        int n = temp.size();
+
+        if (n % 2 == 1) {
+            return temp[n / 2];
+        } else {
+            int mid1 = temp[n / 2 - 1];
+            int mid2 = temp[n / 2];
+
+            return (mid1 + mid2) / 2.0;
+        }
+    }
+};
+*****************************************************************Better Solution********************************************************************************
+    class MedianFinder {
+private:
+    vector<int> nums;
+
+public:
+    MedianFinder() {
+        
+    }
+
+    void addNum(int num) {
+        auto position = lower_bound(nums.begin(), nums.end(), num);
+
+        nums.insert(position, num);
+    }
+
+    double findMedian() {
+        int n = nums.size();
+
+        if (n % 2 == 1) {
+            return nums[n / 2];
+        } else {
+            int mid1 = nums[n / 2 - 1];
+            int mid2 = nums[n / 2];
+
+            return (mid1 + mid2) / 2.0;
+        }
+    }
+};
+*****************************************************************Optimal Solution********************************************************************************
+class MedianFinder {
+private:
+    priority_queue<int> leftMaxHeap;
+
+    priority_queue<int, vector<int>, greater<int>> rightMinHeap;
+
+public:
+    MedianFinder() {
+        
+    }
+
+    void addNum(int num) {
+        if (leftMaxHeap.empty() || num <= leftMaxHeap.top()) {
+            leftMaxHeap.push(num);
+        } else {
+            rightMinHeap.push(num);
+        }
+
+        if (leftMaxHeap.size() > rightMinHeap.size() + 1) {
+            rightMinHeap.push(leftMaxHeap.top());
+            leftMaxHeap.pop();
+        } 
+        else if (rightMinHeap.size() > leftMaxHeap.size() + 1) {
+            leftMaxHeap.push(rightMinHeap.top());
+            rightMinHeap.pop();
+        }
+    }
+
+    double findMedian() {
+        if (leftMaxHeap.size() > rightMinHeap.size()) {
+            return leftMaxHeap.top();
+        } 
+        else if (rightMinHeap.size() > leftMaxHeap.size()) {
+            return rightMinHeap.top();
+        } 
+        else {
+            return (leftMaxHeap.top() + rightMinHeap.top()) / 2.0;
+        }
+    }
+};

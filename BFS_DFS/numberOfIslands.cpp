@@ -58,3 +58,157 @@ private:
         dfs(grid, i, j - 1); // left
     }
 };
+
+*************************************************************Brute Solution*************************************************************************************
+
+
+class Solution {
+public:
+    int rows, cols;
+
+    void dfs(vector<vector<char>>& grid, vector<vector<int>>& visited, int r, int c) {
+        if (r < 0 || c < 0 || r >= rows || c >= cols) {
+            return;
+        }
+
+        if (grid[r][c] == '0' || visited[r][c] == 1) {
+            return;
+        }
+
+        visited[r][c] = 1;
+
+        dfs(grid, visited, r + 1, c);
+        dfs(grid, visited, r - 1, c);
+        dfs(grid, visited, r, c + 1);
+        dfs(grid, visited, r, c - 1);
+    }
+
+    bool isSameIsland(vector<vector<char>>& grid, int r1, int c1, int r2, int c2) {
+        vector<vector<int>> visited(rows, vector<int>(cols, 0));
+
+        dfs(grid, visited, r1, c1);
+
+        return visited[r2][c2] == 1;
+    }
+
+    int numIslands(vector<vector<char>>& grid) {
+        rows = grid.size();
+        cols = grid[0].size();
+
+        vector<pair<int, int>> lands;
+
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                if (grid[i][j] == '1') {
+                    lands.push_back({i, j});
+                }
+            }
+        }
+
+        int count = 0;
+
+        for (int i = 0; i < lands.size(); i++) {
+            bool alreadyCounted = false;
+
+            for (int j = 0; j < i; j++) {
+                if (isSameIsland(grid, lands[i].first, lands[i].second,
+                                 lands[j].first, lands[j].second)) {
+                    alreadyCounted = true;
+                    break;
+                }
+            }
+
+            if (!alreadyCounted) {
+                count++;
+            }
+        }
+
+        return count;
+    }
+};
+*************************************************************Better Solution*************************************************************************************
+
+
+class Solution {
+public:
+    int rows, cols;
+
+    void dfs(vector<vector<char>>& grid, vector<vector<int>>& visited, int r, int c) {
+        if (r < 0 || c < 0 || r >= rows || c >= cols) {
+            return;
+        }
+
+        if (grid[r][c] == '0' || visited[r][c] == 1) {
+            return;
+        }
+
+        visited[r][c] = 1;
+
+        dfs(grid, visited, r + 1, c);
+        dfs(grid, visited, r - 1, c);
+        dfs(grid, visited, r, c + 1);
+        dfs(grid, visited, r, c - 1);
+    }
+
+    int numIslands(vector<vector<char>>& grid) {
+        rows = grid.size();
+        cols = grid[0].size();
+
+        vector<vector<int>> visited(rows, vector<int>(cols, 0));
+
+        int islands = 0;
+
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                if (grid[i][j] == '1' && visited[i][j] == 0) {
+                    islands++;
+                    dfs(grid, visited, i, j);
+                }
+            }
+        }
+
+        return islands;
+    }
+};
+*************************************************************Optimal Solution*************************************************************************************
+
+
+class Solution {
+public:
+    int rows, cols;
+
+    void dfs(vector<vector<char>>& grid, int r, int c) {
+        if (r < 0 || c < 0 || r >= rows || c >= cols) {
+            return;
+        }
+
+        if (grid[r][c] == '0') {
+            return;
+        }
+
+        grid[r][c] = '0';
+
+        dfs(grid, r + 1, c);
+        dfs(grid, r - 1, c);
+        dfs(grid, r, c + 1);
+        dfs(grid, r, c - 1);
+    }
+
+    int numIslands(vector<vector<char>>& grid) {
+        rows = grid.size();
+        cols = grid[0].size();
+
+        int islands = 0;
+
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                if (grid[i][j] == '1') {
+                    islands++;
+                    dfs(grid, i, j);
+                }
+            }
+        }
+
+        return islands;
+    }
+};

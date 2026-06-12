@@ -92,3 +92,180 @@ public:
         }
     }
 };
+
+
+**************************************************************Brute Solution***************************************************************************************
+    class Solution {
+public:
+    int m, n;
+
+    bool dfs(vector<vector<char>>& board, int r, int c, vector<vector<int>>& visited) {
+        if (r < 0 || r >= m || c < 0 || c >= n) {
+            return true;
+        }
+
+        if (board[r][c] == 'X' || visited[r][c]) {
+            return false;
+        }
+
+        visited[r][c] = 1;
+
+        bool touchesBoundary = false;
+
+        touchesBoundary |= dfs(board, r - 1, c, visited);
+        touchesBoundary |= dfs(board, r + 1, c, visited);
+        touchesBoundary |= dfs(board, r, c - 1, visited);
+        touchesBoundary |= dfs(board, r, c + 1, visited);
+
+        return touchesBoundary;
+    }
+
+    void mark(vector<vector<char>>& board, int r, int c, vector<vector<int>>& visited) {
+        if (r < 0 || r >= m || c < 0 || c >= n) {
+            return;
+        }
+
+        if (board[r][c] == 'X' || visited[r][c]) {
+            return;
+        }
+
+        visited[r][c] = 1;
+        board[r][c] = 'X';
+
+        mark(board, r - 1, c, visited);
+        mark(board, r + 1, c, visited);
+        mark(board, r, c - 1, visited);
+        mark(board, r, c + 1, visited);
+    }
+
+    void solve(vector<vector<char>>& board) {
+        m = board.size();
+        n = board[0].size();
+
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (board[i][j] == 'O') {
+                    vector<vector<int>> visited(m, vector<int>(n, 0));
+
+                    bool connectedToBoundary = dfs(board, i, j, visited);
+
+                    if (!connectedToBoundary) {
+                        vector<vector<int>> markVisited(m, vector<int>(n, 0));
+                        mark(board, i, j, markVisited);
+                    }
+                }
+            }
+        }
+    }
+};
+**************************************************************Better Solution***************************************************************************************
+    class Solution {
+public:
+    int m, n;
+
+    void dfs(vector<vector<char>>& board,
+             int r,
+             int c,
+             vector<vector<int>>& visited,
+             vector<pair<int, int>>& component,
+             bool& touchesBoundary) {
+        
+        if (r < 0 || r >= m || c < 0 || c >= n) {
+            return;
+        }
+
+        if (board[r][c] == 'X' || visited[r][c]) {
+            return;
+        }
+
+        visited[r][c] = 1;
+        component.push_back({r, c});
+
+        if (r == 0 || r == m - 1 || c == 0 || c == n - 1) {
+            touchesBoundary = true;
+        }
+
+        dfs(board, r - 1, c, visited, component, touchesBoundary);
+        dfs(board, r + 1, c, visited, component, touchesBoundary);
+        dfs(board, r, c - 1, visited, component, touchesBoundary);
+        dfs(board, r, c + 1, visited, component, touchesBoundary);
+    }
+
+    void solve(vector<vector<char>>& board) {
+        m = board.size();
+        n = board[0].size();
+
+        vector<vector<int>> visited(m, vector<int>(n, 0));
+
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (board[i][j] == 'O' && !visited[i][j]) {
+                    vector<pair<int, int>> component;
+                    bool touchesBoundary = false;
+
+                    dfs(board, i, j, visited, component, touchesBoundary);
+
+                    if (!touchesBoundary) {
+                        for (auto cell : component) {
+                            int r = cell.first;
+                            int c = cell.second;
+                            board[r][c] = 'X';
+                        }
+                    }
+                }
+            }
+        }
+    }
+};
+**************************************************************optimal Solution***************************************************************************************
+class Solution {
+public:
+    void solve(vector<vector<char>>& board) {
+        int m = board.size();
+        int n = board[0].size();
+
+        queue<pair<int, int>> q;
+
+        auto add = [&](int r, int c) {
+            if (r >= 0 && r < m && c >= 0 && c < n && board[r][c] == 'O') {
+                board[r][c] = '#';
+                q.push({r, c});
+            }
+        };
+
+        for (int i = 0; i < m; i++) {
+            add(i, 0);
+            add(i, n - 1);
+        }
+
+        for (int j = 0; j < n; j++) {
+            add(0, j);
+            add(m - 1, j);
+        }
+
+        int dr[4] = {-1, 1, 0, 0};
+        int dc[4] = {0, 0, -1, 1};
+
+        while (!q.empty()) {
+            auto [r, c] = q.front();
+            q.pop();
+
+            for (int k = 0; k < 4; k++) {
+                int nr = r + dr[k];
+                int nc = c + dc[k];
+
+                add(nr, nc);
+            }
+        }
+
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (board[i][j] == 'O') {
+                    board[i][j] = 'X';
+                } else if (board[i][j] == '#') {
+                    board[i][j] = 'O';
+                }
+            }
+        }
+    }
+};

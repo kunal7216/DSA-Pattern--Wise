@@ -1,28 +1,67 @@
 // single Number
 // leetcode: https://leetcode.com/problems/single-number/
 
-class Solution
-{
+***********************************************************Brute Solution************************************************************************************
+    class Solution {
 public:
-    int singleNumber(vector<int> &nums)
-    {
+    int singleNumber(vector<int>& nums) {
+        int n = nums.size();
 
-        // Variable to store the result
-        // Initialized to 0 because XOR with 0 gives the number itself
-        int res = 0;
+        // Check every element one by one
+        for (int i = 0; i < n; i++) {
+            int count = 0;
 
-        // Traverse each element in the array
-        for (int n : nums)
-        {
+            // Count frequency of nums[i]
+            for (int j = 0; j < n; j++) {
+                if (nums[i] == nums[j]) {
+                    count++;
+                }
+            }
 
-            // XOR current number with result
-            // - n ^ n = 0 (duplicate numbers cancel out)
-            // - n ^ 0 = n
-            // - XOR is commutative and associative
-            res ^= n;
+            // The element that appears only once is the answer
+            if (count == 1) {
+                return nums[i];
+            }
         }
 
-        // At the end, only the number that appeared once remains
-        return res;
+        return -1; // This line will never be reached for valid input
+    }
+};
+***********************************************************Better Solution************************************************************************************
+    
+    class Solution {
+public:
+    int singleNumber(vector<int>& nums) {
+        unordered_map<int, int> freq;
+
+        // Count frequency of every number
+        for (int num : nums) {
+            freq[num]++;
+        }
+
+        // Find the number whose frequency is 1
+        for (auto it : freq) {
+            if (it.second == 1) {
+                return it.first;
+            }
+        }
+
+        return -1; // This line will never be reached for valid input
+    }
+};
+***********************************************************Optimal Solution************************************************************************************
+    class Solution {
+public:
+    int singleNumber(vector<int>& nums) {
+        int xorValue = 0;
+
+        // XOR all numbers
+        // Duplicate numbers cancel each other
+        for (int num : nums) {
+            xorValue = xorValue ^ num;
+        }
+
+        // Remaining value is the single number
+        return xorValue;
     }
 };

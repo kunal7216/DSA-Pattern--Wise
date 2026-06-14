@@ -1,44 +1,103 @@
 // Flatten Binary Tree to Linked List
 // leetcode: https://leetcode.com/problems/flatten-binary-tree-to-linked-list/
 
-/**
- * Definition for a binary tree node.
- * This is the standard TreeNode structure used in LeetCode problems.
- */
-// struct TreeNode
-// {
-//     int val;         // Value of the node
-//     TreeNode *left;  // Pointer to left child
-//     TreeNode *right; // Pointer to right child
-//     TreeNode() : val(0), left(nullptr), right(nullptr) {}
-//     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
-//     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
-// };
 
-class Solution
-{
+*************************************************************Brute Solution************************************************************************************
+    class Solution {
 public:
-    TreeNode *nextRight = NULL; // Tracks the previously processed node during traversal
-
-    // Recursive function to flatten the tree
-    void flatten(TreeNode *root)
-    {
-        if (root == NULL)
-        {
-            return; // Base case: if node is null, return
+    void preorder(TreeNode* root, vector<TreeNode*>& nodes) {
+        if (root == NULL) {
+            return;
         }
 
-        // Step 1: Recursively flatten the right subtree first
-        flatten(root->right);
+        // Root
+        nodes.push_back(root);
 
-        // Step 2: Recursively flatten the left subtree
-        flatten(root->left);
+        // Left
+        preorder(root->left, nodes);
 
-        // Step 3: Rewire pointers
-        root->left = NULL;       // Set left child to NULL (as required in flattened tree)
-        root->right = nextRight; // Point right child to previously processed node
+        // Right
+        preorder(root->right, nodes);
+    }
 
-        // Step 4: Update the previously processed node
-        nextRight = root;
+    void flatten(TreeNode* root) {
+        if (root == NULL) {
+            return;
+        }
+
+        vector<TreeNode*> nodes;
+
+        // Step 1: Store preorder traversal
+        preorder(root, nodes);
+
+        // Step 2: Reconnect nodes like a linked list
+        for (int i = 0; i < nodes.size() - 1; i++) {
+            nodes[i]->left = NULL;
+            nodes[i]->right = nodes[i + 1];
+        }
+
+        // Last node
+        nodes.back()->left = NULL;
+        nodes.back()->right = NULL;
     }
 };
+*************************************************************Better Solution************************************************************************************
+    class Solution {
+public:
+    TreeNode* prev = NULL;
+
+    void flatten(TreeNode* root) {
+        if (root == NULL) {
+            return;
+        }
+
+        // Process right subtree first
+        flatten(root->right);
+
+        // Then process left subtree
+        flatten(root->left);
+
+        // Attach already processed list after current node
+        root->right = prev;
+
+        // Left must be NULL in final flattened tree
+        root->left = NULL;
+
+        // Update prev
+        prev = root;
+    }
+};
+*************************************************************Optimal Solution************************************************************************************
+    class Solution {
+public:
+    void flatten(TreeNode* root) {
+        TreeNode* curr = root;
+
+        while (curr != NULL) {
+
+            // If there is a left subtree, we need to move it to the right
+            if (curr->left != NULL) {
+
+                // Step 1: Find rightmost node of left subtree
+                TreeNode* rightMost = curr->left;
+
+                while (rightMost->right != NULL) {
+                    rightMost = rightMost->right;
+                }
+
+                // Step 2: Attach current right subtree after rightmost node
+                rightMost->right = curr->right;
+
+                // Step 3: Move left subtree to right
+                curr->right = curr->left;
+
+                // Step 4: Left should become NULL
+                curr->left = NULL;
+            }
+
+            // Move forward in the flattened list
+            curr = curr->right;
+        }
+    }
+};
+

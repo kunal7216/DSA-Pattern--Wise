@@ -53,3 +53,76 @@ public:
         return result;
     }
 };
+
+
+******************************************************************Brute Solution********************************************************************************
+    class Solution {
+public:
+    void dfs(TreeNode* root, vector<int>& values) {
+        if (root == NULL) return;
+
+        values.push_back(root->val);
+        dfs(root->left, values);
+        dfs(root->right, values);
+    }
+
+    int kthSmallest(TreeNode* root, int k) {
+        vector<int> values;
+
+        dfs(root, values);
+
+        sort(values.begin(), values.end());
+
+        return values[k - 1];
+    }
+};
+******************************************************************Better Solution********************************************************************************
+    class Solution {
+public:
+    void inorder(TreeNode* root, vector<int>& values) {
+        if (root == NULL) return;
+
+        inorder(root->left, values);
+        values.push_back(root->val);
+        inorder(root->right, values);
+    }
+
+    int kthSmallest(TreeNode* root, int k) {
+        vector<int> values;
+
+        inorder(root, values);
+
+        return values[k - 1];
+    }
+};
+******************************************************************Optimal Solution********************************************************************************
+    class Solution {
+public:
+    int count = 0;
+    int answer = -1;
+
+    void inorder(TreeNode* root, int k) {
+        if (root == NULL) return;
+
+        // If answer already found, stop further recursion
+        if (answer != -1) return;
+
+        inorder(root->left, k);
+
+        if (answer != -1) return;
+
+        count++;
+
+        if (count == k) {
+            answer = root->val;
+            return;
+        }
+
+        inorder(root->right, k);
+    }
+
+    int kthSmallest(TreeNode* root, int k) {
+        inorder(root, k);
+        return answer;
+    }
+};

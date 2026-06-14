@@ -1,85 +1,197 @@
 // construct binary tree from inorder and postorder traversals
 //// leetcode 106
 
-/**
- * Definition for a binary tree node.
- */
-// struct TreeNode
-// {
-//     int val;
-//     TreeNode *left;
-//     TreeNode *right;
+**********************************************************Brute Solution****************************************************************************************
 
-//     // Default constructor
-//     TreeNode() : val(0), left(nullptr), right(nullptr) {}
 
-//     // Constructor with value only
-//     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
-
-//     // Constructor with value and child nodes
-//     TreeNode(int x, TreeNode *left, TreeNode *right)
-//         : val(x), left(left), right(right) {}
-// };
-
-class Solution
-{
+class Solution {
 public:
-    // Main function to build tree from inorder and postorder
-    TreeNode *buildTree(vector<int> &inorder, vector<int> &postorder)
-    {
-
-        // Edge case: if arrays are not same size, return nullptr
-        if (inorder.size() != postorder.size())
+    TreeNode* buildTree(vector<int>& inorder, vector<int>& postorder) {
+        if (inorder.empty() || postorder.empty()) {
             return nullptr;
-
-        // Step 1: Build a hashmap for fast index lookup in inorder
-        // Key   -> node value
-        // Value -> index of that value in inorder array
-        unordered_map<int, int> hm;
-        for (int i = 0; i < inorder.size(); i++)
-        {
-            hm[inorder[i]] = i;
         }
 
-        // Step 2: Start recursive tree construction
-        // Pass full range of inorder and postorder arrays
-        return buildTreePostIn(inorder, 0, inorder.size() - 1,
-                               postorder, 0, postorder.size() - 1, hm);
+        int rootVal = postorder.back();
+        TreeNode* root = new TreeNode(rootVal);
+
+        int rootIndex = 0;
+
+        // Search root in inorder
+        for (int i = 0; i < inorder.size(); i++) {
+            if (inorder[i] == rootVal) {
+                rootIndex = i;
+                break;
+            }
+        }
+
+        // Split inorder
+        vector<int> leftInorder(
+            inorder.begin(),
+            inorder.begin() + rootIndex
+        );
+
+        vector<int> rightInorder(
+            inorder.begin() + rootIndex + 1,
+            inorder.end()
+        );
+
+        // Split postorder
+        vector<int> leftPostorder(
+            postorder.begin(),
+            postorder.begin() + leftInorder.size()
+        );
+
+        vector<int> rightPostorder(
+            postorder.begin() + leftInorder.size(),
+            postorder.end() - 1
+        );
+
+        root->left = buildTree(leftInorder, leftPostorder);
+        root->right = buildTree(rightInorder, rightPostorder);
+
+        return root;
+    }
+};
+**********************************************************Better Solution****************************************************************************************
+
+
+class Solution {
+public:
+    unordered_map<int, int> inorderIndex;
+
+    TreeNode* solve(
+        vector<int>& inorder,
+        vector<int>& postorder,
+        int inStart,
+        int inEnd,
+        int postStart,
+        int postEnd
+    ) {
+        // Base case: no nodes in this subtree
+        if (inStart > inEnd || postStart > postEnd) {
+            return nullptr;
+        }
+
+        // Last element in postorder is root
+        int rootVal = postorder[postEnd];
+
+        TreeNode* root = new TreeNode(rootVal);
+
+        // Get root index in inorder in O(1)
+        int rootIndex = inorderIndex[rootVal];
+
+        // Number of nodes in left subtree
+        int leftSize = rootIndex - inStart;
+
+        // Build left subtree
+        root->left = solve(
+            inorder,
+            postorder,
+            inStart,
+            rootIndex - 1,
+            postStart,
+            postStart + leftSize - 1
+        );
+
+        // Build right subtree
+        root->right = solve(
+            inorder,
+            postorder,
+            rootIndex + 1,
+            inEnd,
+            postStart + leftSize,
+            postEnd - 1
+        );
+
+        return root;
     }
 
-    // Recursive helper function
-    TreeNode *buildTreePostIn(vector<int> &inorder, int is, int ie,
-                              vector<int> &postorder, int ps, int pe,
-                              unordered_map<int, int> &hm)
-    {
+    TreeNode* buildTree(vector<int>& inorder, vector<int>& postorder) {
+        int n = inorder.size();
 
-        // Base case:
-        // If there are no elements in current range, return nullptr
-        if (ps > pe || is > ie)
+        // Store inorder index of every value
+        for (int i = 0; i < n; i++) {
+            inorderIndex[inorder[i]] = i;
+        }
+
+        return solve(
+            inorder,
+            postorder,
+            0,
+            n - 1,
+            0,
+            n - 1
+        );
+    }
+};
+**********************************************************Optimal Solution***************************************************************************************
+
+class Solution {
+public:
+    unordered_map<int, int> inorderIndex;
+
+    TreeNode* solve(
+        vector<int>& inorder,
+        vector<int>& postorder,
+        int inStart,
+        int inEnd,
+        int postStart,
+        int postEnd
+    ) {
+        // Base case: no nodes in this subtree
+        if (inStart > inEnd || postStart > postEnd) {
             return nullptr;
+        }
 
-        // Step 3: Last element of postorder is the root of current subtree
-        TreeNode *root = new TreeNode(postorder[pe]);
+        // Last element in postorder is root
+        int rootVal = postorder[postEnd];
 
-        // Step 4: Find root index in inorder using hashmap
-        int inRoot = hm[root->val];
+        TreeNode* root = new TreeNode(rootVal);
 
-        // Step 5: Compute number of nodes in left subtree
-        int numsLeft = inRoot - is;
+        // Get root index in inorder in O(1)
+        int rootIndex = inorderIndex[rootVal];
 
-        // Step 6: Recursively build the left subtree
-        // Inorder range: is to inRoot - 1
-        // Postorder range: ps to ps + numsLeft - 1
-        root->left = buildTreePostIn(inorder, is, inRoot - 1,
-                                     postorder, ps, ps + numsLeft - 1, hm);
+        // Number of nodes in left subtree
+        int leftSize = rootIndex - inStart;
 
-        // Step 7: Recursively build the right subtree
-        // Inorder range: inRoot + 1 to ie
-        // Postorder range: ps + numsLeft to pe - 1
-        root->right = buildTreePostIn(inorder, inRoot + 1, ie,
-                                      postorder, ps + numsLeft, pe - 1, hm);
+        // Build left subtree
+        root->left = solve(
+            inorder,
+            postorder,
+            inStart,
+            rootIndex - 1,
+            postStart,
+            postStart + leftSize - 1
+        );
 
-        // Step 8: Return the constructed root node
+        // Build right subtree
+        root->right = solve(
+            inorder,
+            postorder,
+            rootIndex + 1,
+            inEnd,
+            postStart + leftSize,
+            postEnd - 1
+        );
+
         return root;
+    }
+
+    TreeNode* buildTree(vector<int>& inorder, vector<int>& postorder) {
+        int n = inorder.size();
+
+        // Store inorder index of every value
+        for (int i = 0; i < n; i++) {
+            inorderIndex[inorder[i]] = i;
+        }
+
+        return solve(
+            inorder,
+            postorder,
+            0,
+            n - 1,
+            0,
+            n - 1
+        );
     }
 };

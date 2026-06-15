@@ -2,46 +2,85 @@
 // leetcode 137
 // link: https://leetcode.com/problems/single-number-ii/
 
-class Solution
-{
+******************************************************Brute Solution**************************************************************************************
+
+    class Solution {
 public:
-    int singleNumber(vector<int> &nums)
-    {
+    int singleNumber(vector<int>& nums) {
 
-        // 'ones' will store bits that have appeared exactly once
-        int ones = 0;
+        for (int i = 0; i < nums.size(); i++) {
 
-        // 'twos' will store bits that have appeared exactly twice
-        int twos = 0;
+            int count = 0;
 
-        // Traverse each number in the array
-        for (const int num : nums)
-        {
+            // Count frequency
+            for (int j = 0; j < nums.size(); j++) {
 
-            /*
-             Update 'ones':
-             - (num & ~twos) ensures that bits already present in 'twos'
-               (i.e., appeared twice) are not added again.
-             - XOR (^) toggles bits:
-               - Adds bits appearing for the first time
-               - Removes bits appearing for the third time
-            */
-            ones ^= (num & ~twos);
+                if (nums[i] == nums[j]) {
+                    count++;
+                }
+            }
 
-            /*
-             Update 'twos':
-             - (num & ~ones) ensures that bits just added to 'ones'
-               are not immediately added to 'twos'.
-             - XOR toggles bits that have appeared exactly twice
-            */
-            twos ^= (num & ~ones);
+            // Unique element
+            if (count == 1) {
+                return nums[i];
+            }
         }
 
-        /*
-         After processing all numbers:
-         - Bits that appeared three times are removed from both 'ones' and 'twos'
-         - 'ones' contains only the bits of the number that appeared once
-        */
-        return ones;
+        return -1;
+    }
+};
+******************************************************Better Solution**************************************************************************************
+
+    class Solution {
+public:
+    int singleNumber(vector<int>& nums) {
+
+        unordered_map<int, int> freq;
+
+        // Count frequencies
+        for (int num : nums) {
+            freq[num]++;
+        }
+
+        // Find unique element
+        for (auto it : freq) {
+
+            if (it.second == 1) {
+                return it.first;
+            }
+        }
+
+        return -1;
+    }
+};
+******************************************************Optimal Solution**************************************************************************************
+
+    class Solution {
+public:
+    int singleNumber(vector<int>& nums) {
+
+        int result = 0;
+
+        // Check all 32 bits
+        for (int bit = 0; bit < 32; bit++) {
+
+            int count = 0;
+
+            // Count set bits
+            for (int num : nums) {
+
+                // Check if current bit is set
+                if ((num >> bit) & 1) {
+                    count++;
+                }
+            }
+
+            // Unique bit remains
+            if (count % 3 != 0) {
+                result |= (1 << bit);
+            }
+        }
+
+        return result;
     }
 };

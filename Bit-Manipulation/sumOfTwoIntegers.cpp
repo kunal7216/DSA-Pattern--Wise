@@ -1,44 +1,63 @@
 // sum of two integers
 // leetcode 371
 
-class Solution
-{
+****************************************************************Brute Solution**************************************************************************************
+    class Solution {
 public:
-    int getSum(int a, int b)
-    {
+    int getSum(int a, int b) {
 
-        /*
-         Loop until there is no carry left.
-         'b' is used to store the carry at each step.
-        */
-        while (b != 0)
-        {
-
-            /*
-             Calculate the carry:
-             - (a & b) identifies the bits where both a and b have 1
-             - << 1 shifts the carry to the left by 1,
-               because in addition carry affects the next higher bit
-            */
-            int tmp = (a & b) << 1;
-
-            /*
-             Update 'a' to be the sum without carry:
-             - XOR (^) adds bits where only one of them is 1
-             - This is equivalent to binary addition modulo 2
-            */
-            a = a ^ b;
-
-            /*
-             Update 'b' to be the carry for the next iteration
-            */
-            b = tmp;
+        // If b is positive
+        while (b > 0) {
+            a++;
+            b--;
         }
 
-        /*
-         When carry (b) becomes 0, 'a' contains the final sum
-         This works for positive, negative, and mixed integers
-        */
+        // If b is negative
+        while (b < 0) {
+            a--;
+            b++;
+        }
+
+        return a;
+    }
+};
+****************************************************************Better Solution**************************************************************************************
+    class Solution {
+public:
+    int getSum(int a, int b) {
+
+        while (b != 0) {
+
+            // Carry
+            unsigned int carry = (unsigned int)(a & b);
+
+            // Sum without carry
+            a = a ^ b;
+
+            // Shift carry
+            b = carry << 1;
+        }
+
+        return a;
+    }
+};
+****************************************************************Optimal Solution**************************************************************************************
+    class Solution {
+public:
+    int getSum(int a, int b) {
+
+        while (b != 0) {
+
+            // carry bits
+            unsigned carry = (a & b);
+
+            // sum without carry
+            a = a ^ b;
+
+            // shifted carry
+            b = carry << 1;
+        }
+
         return a;
     }
 };

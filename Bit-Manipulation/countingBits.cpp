@@ -1,47 +1,74 @@
 // counting bits
 //leetcode 338
 
-class Solution
-{
+************************************************************Brute Solution******************************************************************************************
+    class Solution {
 public:
-    vector<int> countBits(int n)
-    {
 
-        // dp[i] will store the number of set bits (1s) in the binary representation of i
-        vector<int> dp(n + 1, 0);
+    int countOnes(int num) {
 
-        /*
-         'sub' represents the largest power of 2 that is
-         less than or equal to the current number i.
-         Initially, the largest power of 2 <= 1 is 1.
-        */
-        int sub = 1;
+        int count = 0;
 
-        // Compute bit counts for all numbers from 1 to n
-        for (int i = 1; i <= n; i++)
-        {
-
-            /*
-             If i becomes exactly twice of 'sub',
-             then i itself is a new power of 2.
-             Update 'sub' to this new power of 2.
-            */
-            if (sub * 2 == i)
-            {
-                sub = i;
-            }
-
-            /*
-             Any number i can be written as:
-             i = (largest power of 2 <= i) + remainder
-
-             dp[i - sub] gives the count of 1s in the remainder.
-             Adding 1 accounts for the most significant bit (sub).
-            */
-            dp[i] = dp[i - sub] + 1;
+        while(num) {
+            num = num & (num - 1);
+            count++;
         }
 
-        // Return the array containing bit counts for all numbers from 0 to n
-        return dp;
+        return count;
+    }
+
+    vector<int> countBits(int n) {
+
+        vector<int> ans;
+
+        for(int i = 0; i <= n; i++) {
+            ans.push_back(countOnes(i));
+        }
+
+        return ans;
+    }
+};
+************************************************************Better Solution******************************************************************************************
+    class Solution {
+public:
+
+    int countOnes(int num) {
+
+        int count = 0;
+
+        while(num) {
+            num = num & (num - 1);
+            count++;
+        }
+
+        return count;
+    }
+
+    vector<int> countBits(int n) {
+
+        vector<int> ans;
+
+        for(int i = 0; i <= n; i++) {
+            ans.push_back(countOnes(i));
+        }
+
+        return ans;
+    }
+};
+************************************************************Optimal Solution******************************************************************************************
+class Solution {
+public:
+    vector<int> countBits(int n) {
+
+        vector<int> ans(n + 1, 0);
+
+        // Start from 1 because ans[0] = 0
+        for(int i = 1; i <= n; i++) {
+
+            // DP relation
+            ans[i] = ans[i >> 1] + (i & 1);
+        }
+
+        return ans;
     }
 };

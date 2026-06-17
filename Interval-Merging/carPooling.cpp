@@ -1,38 +1,78 @@
 // car pooling 
 // leetcode problem link: https://leetcode.com/problems/car-pooling/
 
-class Solution
-{
+*****************************************************Brute Solution*********************************************************************************
+    class Solution {
 public:
-    bool carPooling(vector<vector<int>> &trips, int capacity)
-    {
+    bool carPooling(vector<vector<int>>& trips, int capacity) {
+        vector<int> road(1001, 0);
 
-        // Min-heap based on location (time)
-        priority_queue<
-            pair<int, int>,
-            vector<pair<int, int>>,
-            greater<pair<int, int>>>
-            heap;
+        for (auto& trip : trips) {
+            int passengers = trip[0];
+            int from = trip[1];
+            int to = trip[2];
 
-        // Create events
-        for (int i = 0; i < trips.size(); i++)
-        {
-            // Pick up passengers at start location
-            heap.push({trips[i][1], trips[i][0]});
+            for (int i = from; i < to; i++) {
+                road[i] += passengers;
 
-            // Drop off passengers at end location
-            heap.push({trips[i][2], -trips[i][0]});
+                if (road[i] > capacity)
+                    return false;
+            }
         }
 
-        int onboard = 0;
+        return true;
+    }
+};
+*****************************************************Better Solution*********************************************************************************
+    class Solution {
+public:
+    bool carPooling(vector<vector<int>>& trips, int capacity) {
 
-        // Process events in increasing order of location
-        while (!heap.empty())
-        {
-            onboard += heap.top().second;
-            heap.pop();
+        vector<pair<int,int>> events;
 
-            if (onboard > capacity)
+        for (auto &trip : trips) {
+            events.push_back({trip[1], trip[0]});   // pickup
+            events.push_back({trip[2], -trip[0]});  // drop
+        }
+
+        sort(events.begin(), events.end());
+
+        int passengers = 0;
+
+        for (auto &event : events) {
+            passengers += event.second;
+
+            if (passengers > capacity)
+                return false;
+        }
+
+        return true;
+    }
+};
+*****************************************************Optimal Solution*********************************************************************************
+    class Solution {
+public:
+    bool carPooling(vector<vector<int>>& trips, int capacity) {
+
+        vector<int> diff(1001, 0);
+
+        for (auto &trip : trips) {
+
+            int passengers = trip[0];
+            int from = trip[1];
+            int to = trip[2];
+
+            diff[from] += passengers;
+            diff[to] -= passengers;
+        }
+
+        int currentPassengers = 0;
+
+        for (int i = 0; i < 1001; i++) {
+
+            currentPassengers += diff[i];
+
+            if (currentPassengers > capacity)
                 return false;
         }
 

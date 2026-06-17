@@ -1,49 +1,101 @@
 // non overlapping intervals
 // link: https://practice.geeksforgeeks.org/problems/non-overlapping-intervals/
 
-class Solution
-{
+*****************************************************Brute Solution*********************************************************************************
+    class Solution {
 public:
-    int eraseOverlapIntervals(vector<vector<int>> &intervals)
-    {
+    bool isValid(vector<vector<int>>& arr) {
+        sort(arr.begin(), arr.end());
 
-        // This variable will store the minimum number of intervals
-        // that need to be removed to make the remaining intervals non-overlapping
-        int res = 0;
+        for(int i = 1; i < arr.size(); i++) {
+            if(arr[i][0] < arr[i - 1][1])
+                return false;
+        }
+        return true;
+    }
 
-        // Sort intervals based on their end time
-        // This greedy choice allows us to keep intervals
-        // that finish earliest, leaving more room for others
-        sort(intervals.begin(), intervals.end(), [](const auto &a, const auto &b)
-             { return a[1] < b[1]; });
+    int ans = INT_MAX;
 
-        // Store the end time of the first interval
-        // This represents the last interval we decided to keep
-        int prev_end = intervals[0][1];
+    void dfs(vector<vector<int>>& intervals,
+             int idx,
+             vector<vector<int>>& chosen,
+             int removed) {
 
-        // Iterate through the remaining intervals
-        for (int i = 1; i < intervals.size(); i++)
-        {
+        if(idx == intervals.size()) {
+            if(isValid(chosen))
+                ans = min(ans, removed);
+            return;
+        }
 
-            // If the current interval starts before the previous one ends,
-            // it means there is an overlap
-            if (prev_end > intervals[i][0])
-            {
+        // Keep interval
+        chosen.push_back(intervals[idx]);
+        dfs(intervals, idx + 1, chosen, removed);
+        chosen.pop_back();
 
-                // Since they overlap, we must remove one interval
-                // We increment the removal count
-                res++;
+        // Remove interval
+        dfs(intervals, idx + 1, chosen, removed + 1);
+    }
+
+    int eraseOverlapIntervals(vector<vector<int>>& intervals) {
+        vector<vector<int>> chosen;
+        dfs(intervals, 0, chosen, 0);
+        return ans;
+    }
+};
+*****************************************************Better Solution*********************************************************************************
+    class Solution {
+public:
+    int eraseOverlapIntervals(vector<vector<int>>& intervals) {
+
+        sort(intervals.begin(), intervals.end());
+
+        int n = intervals.size();
+
+        vector<int> dp(n, 1);
+
+        int keep = 1;
+
+        for(int i = 1; i < n; i++) {
+
+            for(int j = 0; j < i; j++) {
+
+                if(intervals[j][1] <= intervals[i][0]) {
+                    dp[i] = max(dp[i], dp[j] + 1);
+                }
             }
-            else
-            {
 
-                // If there is no overlap, we keep the current interval
-                // and update prev_end to its end time
-                prev_end = intervals[i][1];
+            keep = max(keep, dp[i]);
+        }
+
+        return n - keep;
+    }
+};
+*****************************************************Optimal Solution*********************************************************************************
+    class Solution {
+public:
+    int eraseOverlapIntervals(vector<vector<int>>& intervals) {
+
+        sort(intervals.begin(), intervals.end(),
+             [](vector<int>& a, vector<int>& b) {
+                 return a[1] < b[1];
+             });
+
+        int removed = 0;
+
+        int prevEnd = intervals[0][1];
+
+        for(int i = 1; i < intervals.size(); i++) {
+
+            if(intervals[i][0] >= prevEnd) {
+                // keep interval
+                prevEnd = intervals[i][1];
+            }
+            else {
+                // overlap
+                removed++;
             }
         }
 
-        // Return the minimum number of intervals to remove
-        return res;
+        return removed;
     }
 };

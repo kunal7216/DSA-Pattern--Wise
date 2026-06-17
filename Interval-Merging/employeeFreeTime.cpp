@@ -5,117 +5,186 @@
 
 //find the common free time slots of all employees given their working time slots
 
-#include <bits/stdc++.h>
-using namespace std;
-
-/**
- * Interval structure used by LeetCode
- */
-struct Interval
-{
-    int start;
-    int end;
-
-    Interval() : start(0), end(0) {}
-    Interval(int s, int e) : start(s), end(e) {}
-};
-
-class Solution
-{
+*********************************************************Brute Solution**********************************************************************************
+    class Solution {
 public:
-    vector<Interval> employeeFreeTime(vector<vector<Interval>> &schedule)
-    {
+    vector<Interval> employeeFreeTime(vector<vector<Interval>> schedule) {
 
-        // This will store all common free time intervals
-        vector<Interval> result;
+        int maxEnd = 0;
 
-        // Min-heap (priority queue) that sorts intervals by start time
-        // We want the interval with the smallest start time on top
-        priority_queue<Interval, vector<Interval>,
-                       function<bool(const Interval &, const Interval &)>>
-            pq(
-                [](const Interval &a, const Interval &b)
-                {
-                    return a.start > b.start; // min-heap based on start time
-                });
-
-        // Push all intervals of all employees into the priority queue
-        // This flattens the 2D schedule into a single sorted stream
-        for (auto &employee : schedule)
-        {
-            for (auto &interval : employee)
-            {
-                pq.push(interval);
+        for (auto &emp : schedule) {
+            for (auto &it : emp) {
+                maxEnd = max(maxEnd, it.end);
             }
         }
 
-        // Take the earliest interval as the previous interval
-        Interval prev = pq.top();
-        pq.pop();
+        vector<int> busy(maxEnd + 1, 0);
 
-        // Process all remaining intervals
-        while (!pq.empty())
-        {
-
-            // Get the next interval in sorted order
-            Interval curr = pq.top();
-            pq.pop();
-
-            // Case 1: There is a gap between previous and current interval
-            // This gap is common free time for all employees
-            if (prev.end < curr.start)
-            {
-
-                // Add the free time interval
-                result.push_back(Interval(prev.end, curr.start));
-
-                // Move previous pointer to current interval
-                prev = curr;
-            }
-            // Case 2: Intervals overlap or touch
-            else
-            {
-                // Merge intervals by extending the end time
-                prev.end = max(prev.end, curr.end);
+        for (auto &emp : schedule) {
+            for (auto &it : emp) {
+                for (int t = it.start; t < it.end; t++) {
+                    busy[t] = 1;
+                }
             }
         }
 
-        // Return all common free time intervals
-        return result;
+        vector<Interval> ans;
+
+        int start = -1;
+
+        for (int t = 0; t < maxEnd; t++) {
+
+            if (!busy[t] && start == -1)
+                start = t;
+
+            if (busy[t] && start != -1) {
+                ans.push_back(Interval(start, t));
+                start = -1;
+            }
+        }
+
+        return ans;
     }
 };
+*********************************************************Better Solution**********************************************************************************
+    class Solution {
+public:
+    vector<Interval> employeeFreeTime(vector<vector<Interval>> schedule) {
 
-/*
-Approach (Point-wise)
+        vector<Interval> intervals;
 
-Flatten all schedules
-Collect every working interval of all employees into a single data structure so they can be processed together.
+        for (auto &emp : schedule) {
+            for (auto &it : emp) {
+                intervals.push_back(it);
+            }
+        }
 
-Sort using a min-heap (priority queue)
-Use a priority queue ordered by interval start time to always process the earliest starting interval first.
+        sort(intervals.begin(), intervals.end(),
+             [](const Interval& a, const Interval& b) {
+                 return a.start < b.start;
+             });
 
-Initialize a reference interval (prev)
-Pop the first interval from the priority queue and treat it as the currently merged working interval.
+        vector<Interval> merged;
 
-Process remaining intervals one by one
-Repeatedly extract the next interval (curr) from the priority queue.
+        for (auto &cur : intervals) {
 
-Check for free time (gap detection)
+            if (merged.empty() ||
+                merged.back().end < cur.start) {
 
-If prev.end < curr.start, a gap exists.
+                merged.push_back(cur);
+            }
+            else {
+                merged.back().end =
+                    max(merged.back().end, cur.end);
+            }
+        }
 
-This gap represents common free time for all employees.
+        vector<Interval> ans;
 
-Add [prev.end, curr.start] to the result.
+        for (int i = 1; i < merged.size(); i++) {
 
-Merge overlapping intervals
+            ans.push_back(
+                Interval(
+                    merged[i - 1].end,
+                    merged[i].start
+                )
+            );
+        }
 
-If intervals overlap or touch, extend the current working interval.
+        return ans;
+    }
+};
+*********************************************************Optimal Solution**********************************************************************************
+    class Solution {
+public:
 
-Update prev.end = max(prev.end, curr.end).
+    struct Node {
+        int start;
+        int end;
+        int emp;
+        int idx;
+    };
 
-Continue until all intervals are processed
-Maintain merged busy intervals and record all gaps.
+    struct Compare {
+        bool operator()(Node &a, Node &b) {
+            return a.start > b.start;
+        }
+    };
 
-Return the result
-The collected gaps are the common free time intervals.*/
+    vector<Interval> employeeFreeTime(
+        vector<vector<Interval>> schedule) {
+
+        priority_queue<
+            Node,
+            vector<Node>,
+            Compare
+        > pq;
+
+        int k = schedule.size();
+
+        for (int i = 0; i < k; i++) {
+            pq.push({
+                schedule[i][0].start,
+                schedule[i][0].end,
+                i,
+                0
+            });
+        }
+
+        Node cur = pq.top();
+        pq.pop();
+
+        int prevEnd = cur.end;
+
+        vector<Interval> ans;
+
+        if (cur.idx + 1 < schedule[cur.emp].size()) {
+
+            auto &next =
+                schedule[cur.emp][cur.idx + 1];
+
+            pq.push({
+                next.start,
+                next.end,
+                cur.emp,
+                cur.idx + 1
+            });
+        }
+
+        while (!pq.empty()) {
+
+            Node top = pq.top();
+            pq.pop();
+
+            if (top.start > prevEnd) {
+
+                ans.push_back(
+                    Interval(prevEnd, top.start)
+                );
+
+                prevEnd = top.end;
+            }
+            else {
+
+                prevEnd =
+                    max(prevEnd, top.end);
+            }
+
+            if (top.idx + 1 <
+                schedule[top.emp].size()) {
+
+                auto &next =
+                    schedule[top.emp][top.idx + 1];
+
+                pq.push({
+                    next.start,
+                    next.end,
+                    top.emp,
+                    top.idx + 1
+                });
+            }
+        }
+
+        return ans;
+    }
+};

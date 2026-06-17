@@ -1,56 +1,103 @@
 // merge intervals problem
 // leetcode link: https://leetcode.com/problems/merge-intervals/
 
-class Solution
-{
+*****************************************************Brute Solution*********************************************************************************
+    class Solution {
 public:
-    vector<vector<int>> merge(vector<vector<int>> &intervals)
-    {
+    vector<vector<int>> merge(vector<vector<int>>& intervals) {
 
-        // Result vector to store merged intervals
-        vector<vector<int>> res;
+        bool changed = true;
 
-        // Edge case: if no intervals are given, return empty result
-        if (intervals.size() == 0)
-        {
-            return res;
-        }
+        while (changed) {
+            changed = false;
 
-        // Step 1: Sort intervals based on starting time
-        // This helps us merge overlapping intervals in a single pass
-        sort(intervals.begin(), intervals.end(), [](vector<int> &a, vector<int> &b)
-             { return a[0] < b[0]; });
+            for (int i = 0; i < intervals.size(); i++) {
 
-        // Step 2: Initialize current interval with the first sorted interval
-        vector<int> curr = intervals[0];
+                for (int j = i + 1; j < intervals.size(); j++) {
 
-        // Step 3: Traverse remaining intervals
-        for (int i = 1; i < intervals.size(); i++)
-        {
+                    if (max(intervals[i][0], intervals[j][0]) <=
+                        min(intervals[i][1], intervals[j][1])) {
 
-            // If current interval ends before the next interval starts,
-            // then there is no overlap
-            if (curr[1] < intervals[i][0])
-            {
+                        intervals[i][0] =
+                            min(intervals[i][0], intervals[j][0]);
 
-                // Push the completed interval into result
-                res.push_back(curr);
+                        intervals[i][1] =
+                            max(intervals[i][1], intervals[j][1]);
 
-                // Move to the next interval
-                curr = intervals[i];
-            }
-            else
-            {
-                // Overlapping case:
-                // Merge intervals by extending the end time
-                curr[1] = max(curr[1], intervals[i][1]);
+                        intervals.erase(intervals.begin() + j);
+
+                        changed = true;
+                        break;
+                    }
+                }
+
+                if (changed) break;
             }
         }
 
-        // Step 4: Push the last processed interval
-        res.push_back(curr);
+        return intervals;
+    }
+};
+*****************************************************Better Solution*********************************************************************************
+    class Solution {
+public:
+    vector<vector<int>> merge(vector<vector<int>>& intervals) {
 
-        // Return all merged intervals
-        return res;
+        sort(intervals.begin(), intervals.end());
+
+        vector<vector<int>> result;
+
+        for (int i = 0; i < intervals.size(); i++) {
+
+            int start = intervals[i][0];
+            int end = intervals[i][1];
+
+            int j = i + 1;
+
+            while (j < intervals.size() &&
+                   intervals[j][0] <= end) {
+
+                end = max(end, intervals[j][1]);
+                j++;
+            }
+
+            result.push_back({start, end});
+
+            i = j - 1;
+        }
+
+        return result;
+    }
+};
+*****************************************************Optimal Solution*********************************************************************************
+    class Solution {
+public:
+    vector<vector<int>> merge(vector<vector<int>>& intervals) {
+
+        sort(intervals.begin(), intervals.end());
+
+        vector<vector<int>> merged;
+
+        merged.push_back(intervals[0]);
+
+        for (int i = 1; i < intervals.size(); i++) {
+
+            int currentStart = intervals[i][0];
+            int currentEnd = intervals[i][1];
+
+            int lastEnd = merged.back()[1];
+
+            if (currentStart <= lastEnd) {
+
+                merged.back()[1] =
+                    max(lastEnd, currentEnd);
+
+            } else {
+
+                merged.push_back(intervals[i]);
+            }
+        }
+
+        return merged;
     }
 };

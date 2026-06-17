@@ -2,53 +2,104 @@
 //link: https://leetcode.com/problems/minimum-number-of-arrows-to-burst-balloons/
 
 // Comparator function to sort balloons based on their ending point (x_end)
-bool comp(vector<int> &a, vector<int> &b)
-{
-    return a[1] < b[1]; // Sort by end coordinate
-}
 
-class Solution
-{
+*****************************************************Brute Solution*********************************************************************************
+    class Solution {
 public:
-    int findMinArrowShots(vector<vector<int>> &points)
-    {
+    int findMinArrowShots(vector<vector<int>>& points) {
 
-        // Edge case: if no balloons are present
-        if (points.size() == 0)
-            return 0;
+        int n = points.size();
+        vector<bool> burst(n, false);
 
-        // Step 1: Sort all balloons by their ending x-coordinate
-        // This helps us place arrows optimally
-        sort(points.begin(), points.end(), comp);
+        int arrows = 0;
 
-        // At least one arrow is needed for the first balloon
-        int arrows = 1;
+        for(int i = 0; i < n; i++) {
 
-        // Store the end of the first balloon
-        int end = points[0][1];
+            if(burst[i]) continue;
 
-        // Step 2: Traverse remaining balloons
-        for (int i = 1; i < points.size(); i++)
-        {
+            arrows++;
 
-            // If the current balloon starts after the last arrow position,
-            // it means this balloon cannot be burst with the same arrow
-            if (points[i][0] > end)
-            {
+            long long arrowPos = points[i][1];
 
-                // Need a new arrow
-                arrows++;
+            for(int j = i; j < n; j++) {
 
-                // Update the end position to the current balloon's end
-                end = points[i][1];
+                if(!burst[j] &&
+                   points[j][0] <= arrowPos &&
+                   arrowPos <= points[j][1]) {
+
+                    burst[j] = true;
+                }
             }
-
-            // Else:
-            // The current balloon overlaps with the previous arrow range,
-            // so it can be burst using the same arrow
         }
 
-        // Return the minimum number of arrows needed
+        return arrows;
+    }
+};
+*****************************************************Better Solution*********************************************************************************
+    class Solution {
+public:
+    int findMinArrowShots(vector<vector<int>>& points) {
+
+        if(points.empty()) return 0;
+
+        sort(points.begin(), points.end());
+
+        int arrows = 1;
+
+        long long overlapStart = points[0][0];
+        long long overlapEnd = points[0][1];
+
+        for(int i = 1; i < points.size(); i++) {
+
+            if(points[i][0] <= overlapEnd) {
+
+                overlapStart = max(overlapStart,
+                                   (long long)points[i][0]);
+
+                overlapEnd = min(overlapEnd,
+                                 (long long)points[i][1]);
+            }
+            else {
+
+                arrows++;
+
+                overlapStart = points[i][0];
+                overlapEnd = points[i][1];
+            }
+        }
+
+        return arrows;
+    }
+};
+*****************************************************Optimal Solution*********************************************************************************
+    class Solution {
+public:
+    int findMinArrowShots(vector<vector<int>>& points) {
+
+        if(points.empty()) return 0;
+
+        sort(points.begin(), points.end(),
+            [](const vector<int>& a,
+               const vector<int>& b) {
+
+                return a[1] < b[1];
+            });
+
+        int arrows = 1;
+
+        long long arrowPos = points[0][1];
+
+        for(int i = 1; i < points.size(); i++) {
+
+            // Current arrow cannot burst this balloon
+            if(points[i][0] > arrowPos) {
+
+                arrows++;
+
+                arrowPos = points[i][1];
+            }
+        }
+
         return arrows;
     }
 };

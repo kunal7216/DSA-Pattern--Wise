@@ -4,38 +4,61 @@
 
 // leetcode link: https://leetcode.com/problems/meeting-rooms/
 
-class Solution
-{
+*******************************************************Brute Solution*******************************************************************************
+    class Solution {
 public:
-    bool canAttendMeetings(vector<vector<int>> &intervals)
-    {
+    bool canAttendMeetings(vector<vector<int>>& intervals) {
+        int n = intervals.size();
 
-        // If there are 0 or 1 meetings, no overlap is possible
-        if (intervals.size() <= 1)
-            return true;
+        for (int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
 
-        // Sort all meetings based on start time
-        // This arranges meetings in chronological order
-        sort(intervals.begin(), intervals.end());
+                int start1 = intervals[i][0];
+                int end1   = intervals[i][1];
 
-        // Iterate from the second meeting onward
-        for (int i = 1; i < intervals.size(); i++)
-        {
+                int start2 = intervals[j][0];
+                int end2   = intervals[j][1];
 
-            // intervals[i][0]     -> start time of current meeting
-            // intervals[i - 1][1] -> end time of previous meeting
-            //
-            // If current meeting starts before the previous one ends,
-            // it means the two meetings overlap
-            if (intervals[i][0] < intervals[i - 1][1])
-            {
-
-                // Overlap detected, cannot attend all meetings
-                return false;
+                if (max(start1, start2) < min(end1, end2))
+                    return false;
             }
         }
 
-        // No overlapping meetings found
+        return true;
+    }
+};
+*******************************************************Better Solution*******************************************************************************
+    class Solution {
+public:
+    bool canAttendMeetings(vector<vector<int>>& intervals) {
+
+        sort(intervals.begin(), intervals.end());
+
+        for (int i = 1; i < intervals.size(); i++) {
+
+            if (intervals[i][0] < intervals[i - 1][1])
+                return false;
+        }
+
+        return true;
+    }
+};
+*******************************************************Optimal Solution*******************************************************************************
+    class Solution {
+public:
+    bool canAttendMeetings(vector<vector<int>>& intervals) {
+
+        sort(intervals.begin(), intervals.end());
+
+        for (int i = 1; i < intervals.size(); i++) {
+
+            int previousEnd = intervals[i - 1][1];
+            int currentStart = intervals[i][0];
+
+            if (currentStart < previousEnd)
+                return false;
+        }
+
         return true;
     }
 };

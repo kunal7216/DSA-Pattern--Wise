@@ -6,7 +6,6 @@ A well-structured collection of Data Structures & Algorithms problems, organized
 
 This repository focuses on clarity, correctness, and interview relevance, rather than random problem solving.
 
-
 ---
 
 📌 Repository Highlights

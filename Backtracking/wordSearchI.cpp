@@ -1,67 +1,130 @@
-// word search I
+// word search I -- 79
 // link: https://leetcode.com/problems/word-search/
 
-class Solution
-{
-public:
-    // DFS function to search the word starting from board[i][j]
-    bool search(int index, int i, int j,
-                vector<vector<char>> &board,
-                string word)
-    {
 
-        // Base case: if all characters of the word are matched
-        if (index == word.size())
+
+// Brute Force -- without visited matrix 
+class Solution {
+public:
+    bool dfs(vector<vector<char>>& board, string &word, int i, int j, int idx) {
+        if (idx == word.size())
             return true;
 
-        // Boundary check: if indices go out of grid
-        if (i < 0 || j < 0 ||
-            i >= board.size() ||
-            j >= board[0].size())
+        if (i < 0 || j < 0 || i >= board.size() || j >= board[0].size())
             return false;
 
-        // If current cell does not match the required character
-        if (board[i][j] != word[index])
+        if (board[i][j] != word[idx])
             return false;
 
-        // Store the current character
-        char temp = board[i][j];
-
-        // Mark the cell as visited to avoid reuse
-        board[i][j] = '*';
-
-        // Explore all 4 possible directions
-        bool ans =
-            search(index + 1, i + 1, j, board, word) || // down
-            search(index + 1, i - 1, j, board, word) || // up
-            search(index + 1, i, j + 1, board, word) || // right
-            search(index + 1, i, j - 1, board, word);   // left
-
-        // Backtrack: restore the original character
-        board[i][j] = temp;
-
-        return ans;
+        return dfs(board, word, i + 1, j, idx + 1) ||
+               dfs(board, word, i - 1, j, idx + 1) ||
+               dfs(board, word, i, j + 1, idx + 1) ||
+               dfs(board, word, i, j - 1, idx + 1);
     }
 
-    bool exist(vector<vector<char>> &board, string word)
-    {
-        int n = board.size();
-        int m = board[0].size();
+    bool exist(vector<vector<char>>& board, string word) {
+        int m = board.size(), n = board[0].size();
 
-        // Try starting DFS from every cell in the grid
-        for (int i = 0; i < n; i++)
-        {
-            for (int j = 0; j < m; j++)
-            {
-
-                // Start search only if first character matches
-                if (board[i][j] == word[0])
-                {
-                    if (search(0, i, j, board, word))
-                        return true;
-                }
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (dfs(board, word, i, j, 0))
+                    return true;
             }
         }
+
+        return false;
+    }
+};
+
+
+// Better Solution -- with Visited matrix
+class Solution {
+public:
+    bool dfs(vector<vector<char>>& board, vector<vector<bool>>& visited,
+             string &word, int i, int j, int idx) {
+
+        if (idx == word.size())
+            return true;
+
+        if (i < 0 || j < 0 || i >= board.size() || j >= board[0].size())
+            return false;
+
+        if (visited[i][j] || board[i][j] != word[idx])
+            return false;
+
+        visited[i][j] = true;
+
+        bool found = dfs(board, visited, word, i + 1, j, idx + 1) ||
+                     dfs(board, visited, word, i - 1, j, idx + 1) ||
+                     dfs(board, visited, word, i, j + 1, idx + 1) ||
+                     dfs(board, visited, word, i, j - 1, idx + 1);
+
+        visited[i][j] = false;
+
+        return found;
+    }
+
+    bool exist(vector<vector<char>>& board, string word) {
+
+        int m = board.size(), n = board[0].size();
+
+        vector<vector<bool>> visited(m, vector<bool>(n, false));
+
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+
+                if (dfs(board, visited, word, i, j, 0))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+};
+
+
+// optimal Solution -- in place backtracking
+
+class Solution {
+public:
+    bool dfs(vector<vector<char>>& board, string &word,
+             int i, int j, int idx) {
+
+        if (idx == word.size())
+            return true;
+
+        if (i < 0 || j < 0 || i >= board.size() || j >= board[0].size())
+            return false;
+
+        if (board[i][j] != word[idx])
+            return false;
+
+        char temp = board[i][j];
+        board[i][j] = '#';
+
+        bool found = dfs(board, word, i + 1, j, idx + 1) ||
+                     dfs(board, word, i - 1, j, idx + 1) ||
+                     dfs(board, word, i, j + 1, idx + 1) ||
+                     dfs(board, word, i, j - 1, idx + 1);
+
+        board[i][j] = temp;
+
+        return found;
+    }
+
+    bool exist(vector<vector<char>>& board, string word) {
+
+        int m = board.size();
+        int n = board[0].size();
+
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+
+                if (dfs(board, word, i, j, 0))
+                    return true;
+            }
+        }
+
         return false;
     }
 };

@@ -3,37 +3,90 @@
 
 // leetcode 46
 
-class Solution
-{
+                                                                      // Brute Solution 
+class Solution {
 public:
-    vector<vector<int>> permute(vector<int> &nums)
-    {
-        vector<vector<int>> perms; // stores all permutations
-        vector<int> solution;      // current path
-        backtrack(nums, solution, perms);
-        return perms;
-    }
+    vector<vector<int>> permute(vector<int>& nums) {
 
-private:
-    void backtrack(vector<int> &nums, vector<int> &solution, vector<vector<int>> &perms)
-    {
-        // Base case: if current path has all numbers, add to result
-        if (solution.size() == nums.size())
-        {
-            perms.push_back(solution);
+        sort(nums.begin(), nums.end());
+
+        vector<vector<int>> ans;
+
+        do {
+            ans.push_back(nums);
+        } while(next_permutation(nums.begin(), nums.end()));
+
+        return ans;
+    }
+};
+
+                                                                      // better Solution
+class Solution {
+public:
+
+    vector<vector<int>> ans;
+    vector<int> path;
+    vector<bool> used;
+
+    void backtrack(vector<int>& nums) {
+
+        if (path.size() == nums.size()) {
+            ans.push_back(path);
             return;
         }
 
-        // Try all numbers
-        for (int num : nums)
-        {
-            // Skip if already in current path
-            if (find(solution.begin(), solution.end(), num) != solution.end())
+        for (int i = 0; i < nums.size(); i++) {
+
+            if (used[i])
                 continue;
 
-            solution.push_back(num);          // choose
-            backtrack(nums, solution, perms); // recurse
-            solution.pop_back();              // backtrack
+            used[i] = true;
+            path.push_back(nums[i]);
+
+            backtrack(nums);
+
+            path.pop_back();
+            used[i] = false;
         }
+    }
+
+    vector<vector<int>> permute(vector<int>& nums) {
+
+        used.resize(nums.size(), false);
+
+        backtrack(nums);
+
+        return ans;
+    }
+};
+
+                                                                // Optimal Solution
+class Solution {
+public:
+
+    vector<vector<int>> ans;
+
+    void backtrack(vector<int>& nums, int index) {
+
+        if (index == nums.size()) {
+            ans.push_back(nums);
+            return;
+        }
+
+        for (int i = index; i < nums.size(); i++) {
+
+            swap(nums[index], nums[i]);
+
+            backtrack(nums, index + 1);
+
+            swap(nums[index], nums[i]); // Undo
+        }
+    }
+
+    vector<vector<int>> permute(vector<int>& nums) {
+
+        backtrack(nums, 0);
+
+        return ans;
     }
 };

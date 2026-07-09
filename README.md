@@ -18,7 +18,6 @@ This repository focuses on clarity, correctness, and interview relevance, rather
 
 ✅ Ideal for revision, mock interviews, and OA prep
 
-
 ---
 
 🧠 Patterns Covered

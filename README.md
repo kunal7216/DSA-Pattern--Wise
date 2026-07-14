@@ -28,7 +28,6 @@ Sliding Window
 Two Pointers
 
 Binary Search
-
 Hashing / Frequency Count
 
 Stack & Monotonic Stack

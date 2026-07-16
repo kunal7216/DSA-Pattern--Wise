@@ -2,40 +2,152 @@
 // link: https://leetcode.com/problems/combination-sum/
 // leetcode 39
 
-class Solution
-{
+
+// ======================================================
+// Approach 1: Brute Force
+// Time Complexity: Exponential (Generates duplicate permutations)
+// Space Complexity: O(Target)
+// ======================================================
+
+class Solution {
 public:
-    vector<vector<int>> combinationSum(vector<int> &candidates, int target)
-    {
-        vector<vector<int>> result; // stores all valid combinations
-        vector<int> combination;    // current combination
-        backtrack(candidates, target, 0, combination, result);
-        return result;
-    }
+    vector<vector<int>> ans;
+    vector<int> path;
 
-private:
-    void backtrack(vector<int> &candidates, int target, int index,
-                   vector<int> &combination, vector<vector<int>> &result)
-    {
-        int sum = accumulate(combination.begin(), combination.end(), 0);
+    void dfs(vector<int>& candidates, int target) {
 
-        // Base case: valid combination found
-        if (sum == target)
-        {
-            result.push_back(combination);
+        // Found a valid combination
+        if (target == 0) {
+            ans.push_back(path);
             return;
         }
 
-        // Base case: end of array or exceeded target
-        if (index == candidates.size() || sum > target)
+        // Sum exceeded target
+        if (target < 0)
             return;
 
-        // Case 1: skip current number
-        backtrack(candidates, target, index + 1, combination, result);
+        // Try every candidate
+        for (int num : candidates) {
 
-        // Case 2: include current number (can reuse)
-        combination.push_back(candidates[index]);
-        backtrack(candidates, target, index, combination, result); // reuse allowed
-        combination.pop_back();                                    // backtrack
+            // Choose
+            path.push_back(num);
+
+            // Explore
+            dfs(candidates, target - num);
+
+            // Backtrack
+            path.pop_back();
+        }
+    }
+
+    vector<vector<int>> combinationSum(vector<int>& candidates, int target) {
+
+        dfs(candidates, target);
+
+        return ans;
+    }
+};
+
+// ======================================================
+// Approach 2: Better
+// Time Complexity: Exponential
+// Space Complexity: O(Target)
+// Removes duplicate permutations using index
+// ======================================================
+
+class Solution {
+public:
+    vector<vector<int>> ans;
+    vector<int> current;
+
+    void solve(vector<int>& candidates, int index, int target) {
+
+        // Valid combination found
+        if (target == 0) {
+            ans.push_back(current);
+            return;
+        }
+
+        // No candidates left
+        if (index == candidates.size())
+            return;
+
+        // -------------------------
+        // Take current element
+        // -------------------------
+        if (candidates[index] <= target) {
+
+            current.push_back(candidates[index]);
+
+            // Reuse same element
+            solve(candidates, index, target - candidates[index]);
+
+            // Backtrack
+            current.pop_back();
+        }
+
+        // -------------------------
+        // Skip current element
+        // -------------------------
+        solve(candidates, index + 1, target);
+    }
+
+    vector<vector<int>> combinationSum(vector<int>& candidates, int target) {
+
+        // Sort for consistent ordering
+        sort(candidates.begin(), candidates.end());
+
+        solve(candidates, 0, target);
+
+        return ans;
+    }
+};
+
+// ======================================================
+// Approach 3: Optimal (Backtracking + Pruning)
+// Time Complexity: Exponential (Much faster due to pruning)
+// Space Complexity: O(Target)
+// ======================================================
+
+class Solution {
+public:
+    vector<vector<int>> ans;
+    vector<int> combination;
+
+    void backtrack(vector<int>& candidates, int start, int target) {
+
+        // Base Case
+        if (target == 0) {
+            ans.push_back(combination);
+            return;
+        }
+
+        // Try every candidate from current index
+        for (int i = start; i < candidates.size(); i++) {
+
+            // Pruning:
+            // Since array is sorted, no need to continue
+            if (candidates[i] > target)
+                break;
+
+            // Choose current element
+            combination.push_back(candidates[i]);
+
+            // Reuse same element
+            backtrack(candidates, i, target - candidates[i]);
+
+            // Undo choice (Backtracking)
+            combination.pop_back();
+        }
+    }
+
+    vector<vector<int>> combinationSum(vector<int>& candidates, int target) {
+
+        // Sort enables pruning
+        sort(candidates.begin(), candidates.end());
+
+        backtrack(candidates, 0, target);
+
+        return ans;
     }
 };

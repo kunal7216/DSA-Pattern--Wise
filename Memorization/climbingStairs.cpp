@@ -2,39 +2,90 @@
 // leetcode: https://leetcode.com/problems/climbing-stairs/
 // leetcode question id: 70
 
-class Solution
-{
-public:
-    int climbStairs(int n)
-    {
+// ================================
+// Approach 1: Brute Force Recursion
+// Time Complexity: O(2^N)
+// Space Complexity: O(N)
+// ================================
 
-        // Base case:
-        // If there is only 1 step, there is only 1 way to reach it
-        if (n == 1)
+class Solution {
+public:
+
+    int solve(int n)
+    {
+        // Exactly reached the top
+        if(n==0)
             return 1;
 
-        // dp[i] will store the number of ways to reach step i
-        vector<int> dp(n + 1);
+        // Crossed the stairs
+        if(n<0)
+            return 0;
 
-        // Initialization:
-        // Only one way to reach step 1 -> (1)
-        dp[1] = 1;
+        // Choose 1 step or 2 steps
+        return solve(n-1)+solve(n-2);
+    }
 
-        // Two ways to reach step 2 -> (1+1) or (2)
-        dp[2] = 2;
+    int climbStairs(int n) {
+        return solve(n);
+    }
+};
 
-        // Fill the dp array from step 3 to n
-        for (int i = 3; i <= n; i++)
+// =====================================
+// Approach 2: Memoization (Top Down DP)
+// Time Complexity: O(N)
+// Space Complexity: O(N)
+// =====================================
+
+class Solution {
+public:
+
+    int solve(int n, vector<int>& dp)
+    {
+        if(n==0)
+            return 1;
+
+        if(n<0)
+            return 0;
+
+        if(dp[n]!=-1)
+            return dp[n];
+
+        return dp[n]=solve(n-1,dp)+solve(n-2,dp);
+    }
+
+    int climbStairs(int n) {
+
+        vector<int> dp(n+1,-1);
+
+        return solve(n,dp);
+    }
+};
+
+// =====================================
+// Approach 3: Space Optimized DP
+// Time Complexity: O(N)
+// Space Complexity: O(1)
+// =====================================
+
+class Solution {
+public:
+
+    int climbStairs(int n) {
+
+        if(n<=2)
+            return n;
+
+        int prev2=1; // ways to reach stair 1
+        int prev1=2; // ways to reach stair 2
+
+        for(int i=3;i<=n;i++)
         {
+            int curr=prev1+prev2;
 
-            // To reach step i:
-            // 1. Come from step (i - 1) by taking 1 step
-            // 2. Come from step (i - 2) by taking 2 steps
-            // Total ways = ways to reach (i - 1) + ways to reach (i - 2)
-            dp[i] = dp[i - 1] + dp[i - 2];
+            prev2=prev1;
+            prev1=curr;
         }
 
-        // Final answer: number of ways to reach the nth step
-        return dp[n];
+        return prev1;
     }
 };

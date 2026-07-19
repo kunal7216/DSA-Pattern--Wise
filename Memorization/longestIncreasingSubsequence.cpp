@@ -2,48 +2,102 @@
 // leetcode 300
 // leetcode problem link: https://leetcode.com/problems/longest-increasing-subsequence/
 
-class Solution
-{
+// ================================
+// Approach 1: Brute Force (Recursion)
+// Time Complexity: O(2^n)
+// Space Complexity: O(n)
+// ================================
+
+class Solution {
 public:
-    int lengthOfLIS(vector<int> &nums)
+
+    int solve(vector<int>& nums, int index, int prevIndex)
     {
+        // If all elements processed
+        if(index == nums.size())
+            return 0;
+
+        // Option 1: Skip current element
+        int notTake = solve(nums, index + 1, prevIndex);
+
+        // Option 2: Take current element
+        int take = 0;
+
+        if(prevIndex == -1 || nums[index] > nums[prevIndex])
+        {
+            take = 1 + solve(nums, index + 1, index);
+        }
+
+        return max(take, notTake);
+    }
+
+    int lengthOfLIS(vector<int>& nums) {
+        return solve(nums, 0, -1);
+    }
+};
+
+// ===================================
+// Approach 2: DP (Tabulation)
+// Time Complexity: O(n²)
+// Space Complexity: O(n)
+// ===================================
+
+class Solution {
+public:
+    int lengthOfLIS(vector<int>& nums) {
+
         int n = nums.size();
 
-        // T[i] stores the LIS ending at index i (excluding nums[i] itself)
-        vector<int> T(n, 0);
+        vector<int> dp(n,1);
 
-        // Main pointer
-        for (int i = 1; i < n; i++)
+        int ans = 1;
+
+        for(int i=0;i<n;i++)
         {
-
-            // Second pointer
-            for (int j = 0; j < i; j++)
+            for(int j=0;j<i;j++)
             {
-
-                // If current element is greater, it can extend LIS
-                if (nums[i] > nums[j])
+                if(nums[j] < nums[i])
                 {
-
-                    // Update LIS length if better option found
-                    if (T[j] + 1 > T[i])
-                    {
-                        T[i] = T[j] + 1;
-                    }
+                    dp[i]=max(dp[i],dp[j]+1);
                 }
             }
+
+            ans=max(ans,dp[i]);
         }
 
-        // Find the maximum value in T[]
-        int maxIndex = 0;
-        for (int i = 1; i < n; i++)
+        return ans;
+    }
+};
+
+// =======================================
+// Approach 3: Greedy + Binary Search
+// Time Complexity: O(n log n)
+// Space Complexity: O(n)
+// =======================================
+
+class Solution {
+public:
+    int lengthOfLIS(vector<int>& nums) {
+
+        vector<int> tails;
+
+        for(int x : nums)
         {
-            if (T[i] > T[maxIndex])
+            // Find first element >= x
+            auto it = lower_bound(tails.begin(), tails.end(), x);
+
+            if(it == tails.end())
             {
-                maxIndex = i;
+                // Extend LIS
+                tails.push_back(x);
+            }
+            else
+            {
+                // Replace with smaller ending value
+                *it = x;
             }
         }
 
-        // +1 to include the element itself
-        return T[maxIndex] + 1;
+        return tails.size();
     }
 };

@@ -2,6 +2,7 @@
 // leetcode 648
 // link: https://leetcode.com/problems/replace-words/
 
+
 // Trie structure for lowercase English alphabets
 const int N = 26;
 

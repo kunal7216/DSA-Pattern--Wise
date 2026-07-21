@@ -3,114 +3,261 @@
 // link: https://leetcode.com/problems/replace-words/
 
 
-// Trie structure for lowercase English alphabets
-const int N = 26;
+/*
+    Approach 1: Brute Force
 
-struct Trie
-{
-    // Array of pointers to child nodes (a–z)
-    Trie *next[N];
+    Intuition:
+    - For every word in the sentence,
+      check every root in the dictionary.
+    - If a root is a prefix of the word,
+      keep the shortest matching root.
+    - If no root matches, keep the original word.
 
-    // Flag to mark the end of a root word
-    bool isEnd = 0;
+    Time Complexity:
+    O(N × D × L)
 
-    // Constructor: initialize all child pointers to NULL
-    Trie()
-    {
-        fill(next, next + N, (Trie *)NULL);
-    }
+    N = Number of words in sentence
+    D = Number of roots in dictionary
+    L = Average root length
 
-    // Destructor: recursively delete all allocated Trie nodes
-    ~Trie()
-    {
-        for (int i = 0; i < N; ++i)
-        {
-            if (next[i] != NULL)
-            {
-                delete next[i]; // free child nodes
+    Space Complexity:
+    O(1)
+*/
+
+class Solution {
+public:
+    string replaceWords(vector<string>& dictionary, string sentence) {
+
+        stringstream ss(sentence);   // Split sentence into words
+        string word;
+        string answer;
+
+        // Process every word in the sentence
+        while (ss >> word) {
+
+            // Assume no replacement initially
+            string shortestRoot = word;
+
+            // Check every root in dictionary
+            for (string root : dictionary) {
+
+                // Ignore roots longer than current best answer
+                if (root.size() >= shortestRoot.size())
+                    continue;
+
+                // Check whether root is a prefix of word
+                if (word.substr(0, root.size()) == root) {
+
+                    // Update shortest matching root
+                    shortestRoot = root;
+                }
             }
-        }
-    }
 
-    // Insert a word (root word) into the Trie
-    void insert(string &word)
-    {
-        Trie *Node = this;
+            // Add space before every word except first
+            if (!answer.empty())
+                answer += " ";
 
-        // Traverse each character
-        for (char c : word)
-        {
-            int i = c - 'a';
-
-            // Create node if path does not exist
-            if (Node->next[i] == NULL)
-                Node->next[i] = new Trie();
-
-            Node = Node->next[i];
+            answer += shortestRoot;
         }
 
-        // Mark the end of the root word
-        Node->isEnd = 1;
-    }
-
-    // Find the shortest root prefix of a given word
-    string findPrefix(string &word)
-    {
-        Trie *Node = this;
-        string prefix;
-
-        for (char c : word)
-        {
-            int i = c - 'a';
-
-            // If no matching path exists, return original word
-            if (Node->next[i] == NULL)
-                return word;
-
-            Node = Node->next[i];
-            prefix += c;
-
-            // If a root word ends here, return the prefix
-            if (Node->isEnd)
-                return prefix;
-        }
-
-        // If no root matched fully, return original word
-        return word;
+        return answer;
     }
 };
 
-class Solution
-{
+/*
+    Approach 2: Sort Dictionary
+
+    Improvement:
+    - Sort roots according to their length.
+    - Shortest roots come first.
+    - As soon as first prefix matches,
+      stop searching.
+
+    Time Complexity:
+    Sorting : O(D log D)
+
+    Searching:
+    O(N × D × L)
+
+    Space Complexity:
+    O(1)
+*/
+
+class Solution {
 public:
-    static string replaceWords(vector<string> &dictionary, string &sentence)
-    {
-        Trie trie;
+    string replaceWords(vector<string>& dictionary, string sentence) {
 
-        // Insert all dictionary root words into the Trie
-        for (string &word : dictionary)
-            trie.insert(word);
+        // Sort roots by increasing length
+        sort(dictionary.begin(), dictionary.end(),
+             [](string &a, string &b) {
+                 return a.size() < b.size();
+             });
 
-        // Result string and temporary word buffer
-        string ans, word;
+        stringstream ss(sentence);
 
-        // Split sentence by spaces manually
-        for (char c : sentence)
-        {
-            if (c != ' ')
-                word += c;
-            else
-            {
-                // Replace current word using Trie
-                ans += trie.findPrefix(word);
-                ans += ' ';
-                word = "";
+        string word;
+        string answer;
+
+        while (ss >> word) {
+
+            // Default answer is original word
+            string replacement = word;
+
+            // Since dictionary is sorted,
+            // first matching root is automatically shortest
+            for (string root : dictionary) {
+
+                // Ignore impossible roots
+                if (root.size() > word.size())
+                    break;
+
+                // Prefix found
+                if (word.substr(0, root.size()) == root) {
+
+                    replacement = root;
+
+                    // Stop immediately
+                    break;
+                }
             }
+
+            if (!answer.empty())
+                answer += " ";
+
+            answer += replacement;
         }
 
-        // Process the last word
-        ans += trie.findPrefix(word);
+        return answer;
+    }
+};
 
-        return ans;
+/*
+    Approach 3: Trie
+
+    Idea:
+    - Store every root inside a Trie.
+    - For every word,
+      walk through Trie character by character.
+    - As soon as we reach an end-of-word node,
+      return that prefix.
+    - If traversal breaks,
+      return original word.
+
+    Time Complexity:
+    Building Trie:
+    O(Total characters in dictionary)
+
+    Searching:
+    O(Total characters in sentence)
+
+    Overall:
+    O(D + S)
+
+    D = Total dictionary characters
+    S = Total sentence characters
+
+    Space Complexity:
+    O(D)
+*/
+
+class TrieNode {
+public:
+
+    // Pointers for all lowercase letters
+    TrieNode* child[26];
+
+    // Marks end of root word
+    bool isEnd;
+
+    TrieNode() {
+
+        isEnd = false;
+
+        for (int i = 0; i < 26; i++)
+            child[i] = nullptr;
+    }
+};
+
+class Solution {
+
+    TrieNode* root = new TrieNode();
+
+    // Insert one root into Trie
+    void insert(string word) {
+
+        TrieNode* node = root;
+
+        for (char ch : word) {
+
+            int index = ch - 'a';
+
+            // Create node if not present
+            if (node->child[index] == nullptr)
+                node->child[index] = new TrieNode();
+
+            // Move to next node
+            node = node->child[index];
+        }
+
+        // Mark end of root
+        node->isEnd = true;
+    }
+
+    // Find shortest matching root
+    string search(string word) {
+
+        TrieNode* node = root;
+
+        string prefix = "";
+
+        for (char ch : word) {
+
+            int index = ch - 'a';
+
+            // No path exists
+            // Root not found
+            if (node->child[index] == nullptr)
+                return word;
+
+            // Move to next character
+            node = node->child[index];
+
+            // Build current prefix
+            prefix += ch;
+
+            // First completed root found
+            // Return immediately because it is shortest
+            if (node->isEnd)
+                return prefix;
+        }
+
+        // Entire word traversed
+        // No shorter root exists
+        return word;
+    }
+
+public:
+
+    string replaceWords(vector<string>& dictionary, string sentence) {
+
+        // Build Trie using all roots
+        for (string rootWord : dictionary)
+            insert(rootWord);
+
+        stringstream ss(sentence);
+
+        string word;
+        string answer;
+
+        // Replace every word
+        while (ss >> word) {
+
+            if (!answer.empty())
+                answer += " ";
+
+            answer += search(word);
+        }
+
+        return answer;
     }
 };

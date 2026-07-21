@@ -2,88 +2,199 @@
 // leetcode 208
 // link: https://leetcode.com/problems/implement-trie-prefix-tree/
 
-// Trie node structure
-class TrieNode
-{
+// ==========================================
+// Approach 1 : Brute Force (Vector)
+// Time Complexity:
+// Insert     : O(1)
+// Search     : O(N * L)
+// StartsWith : O(N * P)
+//
+// N = number of words
+// L = word length
+// P = prefix length
+//
+// Space Complexity : O(total characters)
+// ==========================================
+
+class Trie {
+private:
+    vector<string> words;
+
 public:
-    // Array of pointers for 26 lowercase English letters
-    TrieNode *child[26];
+    Trie() {}
 
-    // Flag to mark the end of a valid word
-    bool isWord;
+    // Insert word into vector
+    void insert(string word) {
+        words.push_back(word);
+    }
 
-    // Constructor
-    TrieNode()
-    {
-        isWord = false;
+    // Search complete word
+    bool search(string word) {
 
-        // Initialize all children as null
-        for (auto &a : child)
-            a = nullptr;
+        for (string &w : words) {
+
+            if (w == word)
+                return true;
+        }
+
+        return false;
+    }
+
+    // Check prefix
+    bool startsWith(string prefix) {
+
+        for (string &w : words) {
+
+            if (w.substr(0, prefix.size()) == prefix)
+                return true;
+        }
+
+        return false;
     }
 };
 
-class Trie
-{
-    TrieNode *root; // Root node of the Trie
+// ==========================================
+// Approach 2 : Hash Set
+//
+// Insert     : O(L)
+// Search     : O(L)
+// StartsWith : O(N * P)
+//
+// Space : O(total characters)
+// ==========================================
+
+class Trie {
+private:
+    unordered_set<string> st;
 
 public:
-    // Constructor: create an empty root node
-    Trie()
-    {
+
+    Trie() {}
+
+    // Insert word
+    void insert(string word) {
+        st.insert(word);
+    }
+
+    // Search exact word
+    bool search(string word) {
+        return st.count(word);
+    }
+
+    // Prefix search
+    bool startsWith(string prefix) {
+
+        for (auto &word : st) {
+
+            if (word.substr(0, prefix.size()) == prefix)
+                return true;
+        }
+
+        return false;
+    }
+};
+
+// ========================================================
+// Approach 3 : Trie (Optimal)
+//
+// Time Complexity
+// Insert      : O(L)
+// Search      : O(L)
+// StartsWith  : O(P)
+//
+// Space : O(total characters)
+//
+// L = word length
+// P = prefix length
+// ========================================================
+
+class Trie {
+
+    // Trie Node
+    struct TrieNode {
+
+        // Stores pointers for 26 lowercase letters
+        TrieNode* children[26];
+
+        // Marks end of a complete word
+        bool isEnd;
+
+        TrieNode() {
+
+            // Initially all children are NULL
+            for (int i = 0; i < 26; i++)
+                children[i] = nullptr;
+
+            isEnd = false;
+        }
+    };
+
+    // Root node
+    TrieNode* root;
+
+public:
+
+    Trie() {
         root = new TrieNode();
     }
 
-    // Insert a word into the Trie
-    void insert(string s)
-    {
-        TrieNode *p = root;
+    // Insert a word into Trie
+    void insert(string word) {
 
-        // Traverse each character of the word
-        for (auto &a : s)
-        {
-            int i = a - 'a'; // Map character to index (0–25)
+        TrieNode* node = root;
 
-            // If the child does not exist, create a new node
-            if (!p->child[i])
-                p->child[i] = new TrieNode();
+        // Traverse every character
+        for (char ch : word) {
 
-            // Move to the next node
-            p = p->child[i];
+            int index = ch - 'a';
+
+            // Create node if it doesn't exist
+            if (node->children[index] == nullptr)
+                node->children[index] = new TrieNode();
+
+            // Move to next node
+            node = node->children[index];
         }
 
-        // Mark the end of the word
-        p->isWord = true;
+        // Mark end of complete word
+        node->isEnd = true;
     }
 
-    // Search for a word or prefix
-    bool search(string key, bool prefix = false)
-    {
-        TrieNode *p = root;
+    // Search complete word
+    bool search(string word) {
 
-        // Traverse through the characters
-        for (auto &a : key)
-        {
-            int i = a - 'a';
+        TrieNode* node = root;
 
-            // If path breaks, word/prefix not found
-            if (!p->child[i])
+        for (char ch : word) {
+
+            int index = ch - 'a';
+
+            // Character missing
+            if (node->children[index] == nullptr)
                 return false;
 
-            p = p->child[i];
+            node = node->children[index];
         }
 
-        // If searching for a full word, check isWord flag
-        if (prefix == false)
-            return p->isWord;
-
-        // If searching for prefix only, traversal success is enough
-        return true;
+        // Word exists only if end is marked
+        return node->isEnd;
     }
 
-    // Check if any word starts with the given prefix
-    bool startsWith(string prefix)
-    {
-        return search(prefix, true);
+    // Check whether prefix exists
+    bool startsWith(string prefix) {
+
+        TrieNode* node = root;
+
+        for (char ch : prefix) {
+
+            int index = ch - 'a';
+
+            if (node->children[index] == nullptr)
+                return false;
+
+            node = node->children[index];
+        }
+
+        return true;
     }
 };

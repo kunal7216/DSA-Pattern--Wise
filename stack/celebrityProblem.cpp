@@ -1,21 +1,18 @@
-## Approach 1: Brute Force
+************************************************************
+                 // Approach 1: Brute Force
+************************************************************
+// Check every person as a potential celebrity.
 
-### Intuition
+// For each candidate:
 
-Check every person as a potential celebrity.
+//    * They should **not know anyone else.
+//    * Everyone else** should know them.
 
-For each candidate:
+// If both conditions are satisfied, return that candidate.
 
-* They should **not know anyone else**.
-* **Everyone else** should know them.
 
-If both conditions are satisfied, return that candidate.
-
-### C++ Code
-
-```cpp
 // Time Complexity: O(n²)
-// Space Complexity: O(1)
+ // Space Complexity: O(1)
 
 class Solution {
 public:
@@ -54,35 +51,29 @@ public:
         return -1;
     }
 };
-```
 
-**Time Complexity:** `O(n²)`
 
-**Space Complexity:** `O(1)`
 
----
+************************************************************
+            // Approach 2: Better (In-degree & Out-degree)
+************************************************************
 
-# Approach 2: Better (In-degree & Out-degree)
+     // Treat every person as a graph node.
+     // If `i` knows `j`:
 
-### Intuition
+           // * Increase out-degree of `i`.
+          // * Increase in-degree of `j`.
 
-Treat every person as a graph node.
+     // A celebrity has:
 
-If `i` knows `j`:
+         //  In-degree = `n - 1`
+         //  Out-degree = `0`
 
-* Increase out-degree of `i`.
-* Increase in-degree of `j`.
 
-A celebrity has:
 
-* In-degree = `n - 1`
-* Out-degree = `0`
 
-### C++ Code
-
-```cpp
-// Time Complexity: O(n²)
-// Space Complexity: O(n)
+      // Time Complexity: O(n²)
+     // Space Complexity: O(n)
 
 class Solution {
 public:
@@ -120,32 +111,23 @@ public:
         return -1;
     }
 };
-```
 
-**Time Complexity:** `O(n²)`
 
-**Space Complexity:** `O(n)`
 
----
+************************************************************
+          // Approach 3: Stack (Candidate Elimination)
+************************************************************
 
-# Approach 3: Stack (Candidate Elimination)
+// Push all people into a stack.
+// Compare the top two:
 
-### Intuition
+      // If `A` knows `B`, then `A` cannot be the celebrity.
+      // Otherwise, `B` cannot be the celebrity.
 
-Push all people into a stack.
+// Push the possible candidate back.
+// At the end, verify the remaining person.
 
-Compare the top two:
 
-* If `A` knows `B`, then `A` cannot be the celebrity.
-* Otherwise, `B` cannot be the celebrity.
-
-Push the possible candidate back.
-
-At the end, verify the remaining person.
-
-### C++ Code
-
-```cpp
 // Time Complexity: O(n)
 // Space Complexity: O(n)
 
@@ -195,30 +177,19 @@ public:
         return candidate;
     }
 };
-```
 
-**Time Complexity:** `O(n)`
+********************************************************
+          // Approach 4: Optimal (Candidate Elimination)
+********************************************************
+    
+// Keep only one candidate.
+// For every person:
+     // If candidate knows that person, candidate cannot be the celebrity.
+     // Replace the candidate.
 
-**Space Complexity:** `O(n)`
+// Finally, verify the remaining candidate.
 
----
 
-# Approach 4: Optimal (Candidate Elimination)
-
-### Intuition
-
-Keep only one candidate.
-
-For every person:
-
-* If candidate knows that person, candidate cannot be the celebrity.
-* Replace the candidate.
-
-Finally, verify the remaining candidate.
-
-### C++ Code
-
-```cpp
 // Time Complexity: O(n)
 // Space Complexity: O(1)
 
@@ -257,8 +228,4 @@ public:
         return candidate;
     }
 };
-```
 
-**Time Complexity:** `O(n)`
-
-**Space Complexity:** `O(1)`

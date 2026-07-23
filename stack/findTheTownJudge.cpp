@@ -1,31 +1,30 @@
-````markdown
-# LeetCode 997. Find the Town Judge
+                                                        ******************************************************
+                                                        // LeetCode 997. Find the Town Judge
+                                                        *******************************************************
+                                                        // Approach 1: Brute Force
 
-## Approach 1: Brute Force
 
-### Intuition
-The town judge must satisfy two conditions:
+// The town judge must satisfy two conditions:
 
-1. The judge **trusts nobody**.
-2. **Everyone else trusts the judge**.
+     // 1. The judge trusts nobody.
+    // 2. Everyone else trusts the judge.
 
-For every person from `1` to `n`, assume they are the judge:
-- First, check whether they trust anyone. If they do, they cannot be the judge.
-- If they trust nobody, verify that every other person trusts them.
-- If both conditions are satisfied, return that person.
-- If no such person exists, return `-1`.
+// For every person from `1` to `n`, assume they are the judge:
+// - First, check whether they trust anyone. If they do, they cannot be the judge.
+// - If they trust nobody, verify that every other person trusts them.
+// - If both conditions are satisfied, return that person.
+// - If no such person exists, return `-1`.
 
-### Algorithm
-1. Iterate through every person as a potential judge.
-2. Scan the `trust` array to check whether the candidate trusts anyone.
-3. If the candidate trusts someone, move to the next candidate.
-4. Otherwise, check every other person to ensure they trust the candidate.
-5. Return the candidate if both conditions are true.
-6. If no candidate satisfies both conditions, return `-1`.
+    
+// Algorithm
+// 1. Iterate through every person as a potential judge.
+// 2. Scan the `trust` array to check whether the candidate trusts anyone.
+// 3. If the candidate trusts someone, move to the next candidate.
+// 4. Otherwise, check every other person to ensure they trust the candidate.
+// 5. Return the candidate if both conditions are true.
+// 6. If no candidate satisfies both conditions, return `-1`.
 
-### C++ Code
 
-```cpp
 class Solution {
 public:
     int findJudge(int n, vector<vector<int>>& trust) {
@@ -80,48 +79,47 @@ public:
         return -1;
     }
 };
-```
 
-### Time Complexity
-- **O(N × E)**
-- `N` candidates × scanning up to `E` trust relationships repeatedly.
 
-### Space Complexity
-- **O(1)**
+ // Time Complexity
+ //   - O(N × E)
+ //   - `N` candidates × scanning up to `E` trust relationships repeatedly.
 
-### Bottleneck
-The same `trust` list is scanned multiple times, making the solution inefficient.
+ // Space Complexity
+ //   - **O(1)**
 
-### Why It Fails
-For large inputs (e.g., `N = 1000`, `E = 10000`), repeatedly traversing the entire trust list results in poor performance.
+ // Bottleneck
+ //     The same `trust` list is scanned multiple times, making the solution inefficient.
 
----
+ // Why It Fails
+ //     For large inputs (e.g., `N = 1000`, `E = 10000`), repeatedly traversing the entire trust list results in poor performance.
 
-# Approach 2: Better (Adjacency Matrix)
 
-### Improvement Over Brute Force
-Instead of repeatedly scanning the `trust` array, store all trust relationships in an **adjacency matrix**.
+                                                            ***************************************************
+                                                            //  Approach 2: Better (Adjacency Matrix)
+                                                            **************************************************
 
-This allows checking whether one person trusts another in **O(1)** time.
+// Improvement Over Brute Force
+//      Instead of repeatedly scanning the `trust` array, store all trust relationships in an **adjacency matrix**.
 
-### Intuition
-- Build a matrix where:
-  - `trustMatrix[a][b] = true` means person `a` trusts person `b`.
-- For every candidate:
-  - Ensure they trust nobody.
-  - Ensure everyone else trusts them.
+//      This allows checking whether one person trusts another in **O(1)** time.
 
-### Algorithm
-1. Build the adjacency matrix.
-2. Iterate through every person as a candidate.
-3. Check that the candidate trusts nobody.
-4. Check that every other person trusts the candidate.
-5. Return the candidate if both conditions hold.
-6. Otherwise return `-1`.
+//  Intuition
+// - Build a matrix where:
+//   - `trustMatrix[a][b] = true` means person `a` trusts person `b`.
+// - For every candidate:
+//   - Ensure they trust nobody.
+//   - Ensure everyone else trusts them.
 
-### C++ Code
+//  Algorithm
+// 1. Build the adjacency matrix.
+// 2. Iterate through every person as a candidate.
+// 3. Check that the candidate trusts nobody.
+// 4. Check that every other person trusts the candidate.
+// 5. Return the candidate if both conditions hold.
+// 6. Otherwise return `-1`.
 
-```cpp
+
 class Solution {
 public:
     int findJudge(int n, vector<vector<int>>& trust) {
@@ -170,65 +168,64 @@ public:
         return -1;
     }
 };
-```
 
-### Time Complexity
-- **O(N² + E)**
 
-### Space Complexity
-- **O(N²)**
+//  Time Complexity
+// - O(N² + E)
 
-### Why It Is Better
-Trust checks become **O(1)** instead of scanning the entire trust list.
+//   Space Complexity
+// - O(N²)
 
-### Why It Is Still Not Optimal
-The adjacency matrix requires **O(N²)** memory, which is unnecessary for sparse graphs.
+//  Why It Is Better
+//       Trust checks become **O(1)** instead of scanning the entire trust list.
 
-### Limitation
-For large values of `N`, memory consumption becomes the major issue.
+//  Why It Is Still Not Optimal
+//        The adjacency matrix requires **O(N²)** memory, which is unnecessary for sparse graphs.
 
----
+//  Limitation
+//         For large values of `N`, memory consumption becomes the major issue.
 
-# Approach 3: Optimal (In-Degree & Out-Degree Counting)
 
-### Key Insight
-Think of the problem as a directed graph.
+                                            ******************************************************************
+                                            // // Approach 3: Optimal (In-Degree & Out-Degree Counting)
+                                            *******************************************************************
+    
+//  Key Insight
+// Think of the problem as a directed graph.
 
-If `a` trusts `b`, then:
+// If `a` trusts `b`, then:
 
-- `outDegree[a]++`
-- `inDegree[b]++`
+// - `outDegree[a]++`
+// - `inDegree[b]++`
 
-The town judge must satisfy:
+// The town judge must satisfy:
 
-- **Out-degree = 0** (trusts nobody)
-- **In-degree = N − 1** (trusted by everyone else)
+// - Out-degree = 0 (trusts nobody)
+// - In-degree = N − 1 (trusted by everyone else)
 
-### Beginner Intuition
-Instead of checking every person repeatedly:
+// Beginner Intuition
+// Instead of checking every person repeatedly:
 
-- Count how many people each person trusts.
-- Count how many people trust each person.
-- At the end, find the person whose:
-  - `outDegree = 0`
-  - `inDegree = n - 1`
+// - Count how many people each person trusts.
+// - Count how many people trust each person.
+// - At the end, find the person whose:
+//   - `outDegree = 0`
+//   - `inDegree = n - 1`
 
-That person is the judge.
+// That person is the judge.
 
-### Algorithm
-1. Create two arrays:
-   - `inDegree`
-   - `outDegree`
-2. Traverse the trust list once.
-3. Update both degree arrays.
-4. Find the person satisfying:
-   - `outDegree == 0`
-   - `inDegree == n - 1`
-5. Return that person, otherwise return `-1`.
+//  Algorithm
+// 1. Create two arrays:
+//    - `inDegree`
+//    - `outDegree`
+// 2. Traverse the trust list once.
+// 3. Update both degree arrays.
+// 4. Find the person satisfying:
+//    - `outDegree == 0`
+//    - `inDegree == n - 1`
+// 5. Return that person, otherwise return `-1`.
 
-### C++ Code
 
-```cpp
 class Solution {
 public:
     int findJudge(int n, vector<vector<int>>& trust) {
@@ -261,19 +258,18 @@ public:
         return -1;
     }
 };
-```
 
-### Time Complexity
-- **O(N + E)**
+//  Time Complexity
+// - O(N + E)
 
-### Space Complexity
-- **O(N)**
+//  Space Complexity
+// - O(N)
 
-### Why This Is Optimal
-- Every trust relationship is processed exactly once.
-- Every person is checked exactly once.
-- No unnecessary repeated scanning.
-- No extra quadratic memory.
+//  Why This Is Optimal
+// - Every trust relationship is processed exactly once.
+// - Every person is checked exactly once.
+// - No unnecessary repeated scanning.
+// - No extra quadratic memory.
 
-This is the most efficient solution possible because every trust relationship must be examined at least once.
-````
+// This is the most efficient solution possible because every trust relationship must be examined at least once.
+

@@ -1,22 +1,254 @@
+# LeetCode 153. Find Minimum in Rotated Sorted Array
+
+
+                                         ******************************************************************************
+                                                                # Approach 1: Brute Force
+                                         ******************************************************************************
+
+
+## Intuition
+
+// The simplest approach is to scan the entire array and keep track of the minimum element.
+//
+// Since every element is checked exactly once, we are guaranteed to find the smallest value.
+//
+// Although this approach is very easy to implement, it ignores the fact that the array is sorted and rotated.
+
+
+
+## Algorithm
+
+// 1. Assume the first element is the minimum.
+// 2. Traverse the entire array.
+// 3. Update the minimum whenever a smaller element is found.
+// 4. Return the minimum element.
+
+
+
+## C++ Code
+
+
 class Solution {
 public:
-    int findMin(vector<int>& arr) {
-        int low =0, high = arr.size()-1;
-        
-        int ans = INT_MAX;
-        while(low <= high){
-            int mid = low + (high - low)/2;
+    int findMin(vector<int>& nums) {
 
-            if(arr[low] <= arr[mid]){
-                ans = min(ans, arr[low]); // left part is sorted and record the minimum
-                low = mid +1;
-            }
-            else{
-                high = mid -1;   // right part is sorted and discard the right part
-                ans = min(ans, arr[mid]);
-            }
+        // Assume first element is the minimum.
+        int minimum = nums[0];
+
+        // Traverse the entire array.
+        for (int num : nums) {
+
+            // Update minimum if a smaller element is found.
+            minimum = min(minimum, num);
         }
-        return ans;
-        
+
+        // Return the smallest element.
+        return minimum;
     }
 };
+
+
+## Time Complexity
+
+// * Traverse all elements once = O(n)
+
+// Overall: O(n)
+
+
+
+## Space Complexity   O(1)
+
+
+
+## Why is it Slow?
+
+// This approach completely ignores the sorted nature of the array.
+
+// If
+// * n = 10^5
+
+// then all 100000 elements must be visited even though the answer can be found much faster using Binary Search.
+
+
+                                         ******************************************************************************
+                                                   # Approach 2: Linear Search for Rotation Point
+                                         ******************************************************************************
+
+
+## Intuition
+
+// In a rotated sorted array, the minimum element is exactly where the increasing order breaks.
+
+// Example:
+
+// 4 5 6 7 0 1 2
+//         ^
+
+// Here, 0 is the first element that is smaller than its previous element.
+
+// If no such position exists, then the array was never rotated, so the first element is the minimum.
+
+
+
+## Algorithm
+
+// 1. Traverse the array from index 1.
+// 2. Compare every element with its previous element.
+// 3. If nums[i] < nums[i-1], return nums[i].
+// 4. If no such position exists, return nums[0].
+
+
+
+## C++ Code
+
+
+class Solution {
+public:
+    int findMin(vector<int>& nums) {
+
+        int n = nums.size();
+
+        // Find the first position where sorted order breaks.
+        for (int i = 1; i < n; i++) {
+
+            // Rotation point found.
+            if (nums[i] < nums[i - 1])
+                return nums[i];
+        }
+
+        // Array is already sorted.
+        return nums[0];
+    }
+};
+
+
+## Time Complexity
+
+// * Traverse the array once = O(n)
+
+// Overall: O(n)
+
+
+
+## Space Complexity  O(1)
+
+
+## Why is it Better?
+
+// Instead of computing the minimum throughout the array,
+// this approach immediately returns when the rotation point is found.
+
+// However, in the worst case (already sorted array), it still scans all elements.
+
+
+                                         ******************************************************************************
+                                         # Approach 3: Optimal Binary Search
+                                         ******************************************************************************
+
+
+## Intuition
+
+// Since the array is sorted and then rotated, at least one half of the array is always sorted.
+
+// Observation:
+
+// * If nums[mid] > nums[right],
+//   then the minimum lies in the right half.
+
+// * Otherwise,
+//   the minimum lies in the left half (including mid).
+
+// Using this property, we eliminate half of the search space after every iteration.
+
+
+
+## Algorithm
+
+// 1. Initialize:
+
+//    * left = 0
+//    * right = n - 1
+
+// 2. While left < right:
+
+//    * Find mid.
+//    * If nums[mid] > nums[right]:
+
+//         Minimum is in the right half.
+
+//    * Otherwise:
+
+//         Minimum is in the left half (including mid).
+
+// 3. Continue until left == right.
+
+// 4. Return nums[left].
+
+
+
+## C++ Code
+
+
+class Solution {
+public:
+    int findMin(vector<int>& nums) {
+
+        // Search space boundaries.
+        int left = 0;
+        int right = nums.size() - 1;
+
+        // Binary Search.
+        while (left < right) {
+
+            // Find middle index.
+            int mid = left + (right - left) / 2;
+
+            // Minimum lies in the right half.
+            if (nums[mid] > nums[right]) {
+
+                left = mid + 1;
+            }
+            // Minimum lies in the left half (including mid).
+            else {
+
+                right = mid;
+            }
+        }
+
+        // left == right points to the minimum element.
+        return nums[left];
+    }
+};
+
+
+## Time Complexity
+
+// Binary Search halves the search space in every iteration.
+
+// Number of iterations = O(log n)
+
+// Overall: O(log n)
+
+
+
+## Space Complexity    O(1)
+
+
+
+## Why is this Optimal?
+
+// * The array is partially sorted, allowing Binary Search.
+// * Every iteration discards half of the remaining search space.
+// * Since at least one comparison is required per level of Binary Search,
+//   O(log n) is the best possible time complexity.
+// * Only constant extra space is used.
+
+
+
+# Complexity Comparison
+
+| Approach                         | Time Complexity | Space Complexity |
+| -------------------------------- | --------------- | ---------------- |
+| Brute Force                      | O(n)            | O(1)             |
+| Linear Search for Rotation Point | O(n)            | O(1)             |
+| Optimal Binary Search            | **O(log n)**    | **O(1)**         |

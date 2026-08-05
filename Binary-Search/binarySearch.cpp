@@ -1,6 +1,7 @@
-# LeetCode 34. Find First and Last Position of Element in Sorted Array
+# LeetCode 704. Binary Search
 
 ---
+
 
                                          ******************************************************************************
                                                                 # Approach 1: Brute Force
@@ -9,67 +10,44 @@
 
 ## Intuition
 
-
 // The simplest approach is to traverse the entire array one element at a time.
-//
-// While traversing:
-//
-// 1. If the current element equals the target:
-//      - Store its index as the first occurrence if it hasn't been found yet.
-//      - Keep updating the last occurrence.
-//
-// 2. Continue until the end of the array.
-//
-// Finally return {first, last}.
-//
-// If the target never appears,
-// both values remain -1.
-```
+
+// For each element:
+
+// 1. Compare it with the target.
+// 2. If it matches, return its index.
+// 3. Otherwise continue searching.
+
+// Since the array is sorted, this approach ignores that property and checks every element.
 
 ---
 
 ## Algorithm
 
-
-// 1. Initialize first = -1 and last = -1.
-// 2. Traverse the array.
-// 3. If nums[i] == target:
-//
-//      * If first is still -1,
-//        store i as first.
-//
-//      * Update last = i.
-//
-// 4. Return {first, last}.
-```
+// 1. Traverse the array.
+// 2. Compare every element with the target.
+// 3. If found, return its index.
+// 4. Otherwise return -1.
 
 ---
 
 ## C++ Code
 
-
+```cpp
 class Solution {
 public:
-    vector<int> searchRange(vector<int>& nums, int target) {
+    int search(vector<int>& nums, int target) {
 
-        int first = -1;
-        int last = -1;
-
-        // Traverse every element.
+        // Check every element.
         for (int i = 0; i < nums.size(); i++) {
 
-            if (nums[i] == target) {
-
-                // Store first occurrence.
-                if (first == -1)
-                    first = i;
-
-                // Update last occurrence.
-                last = i;
-            }
+            // Target found.
+            if (nums[i] == target)
+                return i;
         }
 
-        return {first, last};
+        // Target does not exist.
+        return -1;
     }
 };
 ```
@@ -78,266 +56,177 @@ public:
 
 ## Time Complexity
 
+// * Traverse all elements = O(n)
 
-// Traverse all elements = O(n)
-//
-// Overall: O(n)
-```
-
----
-
-// ## Space Complexity
-
-```
-// O(1)
-```
-
----
-
-// ## Why is it Slow?
-
-
-// Even though the array is sorted,
-// this approach ignores that property.
-//
-// If
-//
-// n = 10^5
-//
-// every element may still need to be checked.
-//
-// We can do much better using Binary Search.
-```
-
----                                
-                                         ******************************************************************************
-                                                 # Approach 2: Binary Search using lower_bound() & upper_bound()
-                                         ******************************************************************************
-```
-
-## Intuition
-
-
-// Since the array is already sorted,
-// Binary Search can be used instead of traversing the entire array.
-//
-// STL provides:
-//
-// * lower_bound() -> First position where target can be inserted.
-// * upper_bound() -> First position greater than target.
-//
-// If target exists:
-//
-// First Occurrence = lower_bound
-//
-// Last Occurrence = upper_bound - 1
-//
-// Otherwise return {-1, -1}.
-```
-
----
-
-## Algorithm
-
-
-// 1. Find the first occurrence using lower_bound().
-// 2. If lower_bound points outside the array
-//    or does not contain the target,
-//    return {-1, -1}.
-// 3. Find upper_bound().
-// 4. Last occurrence = upper_bound - 1.
-// 5. Return both indices.
-```
-
----
-
-## C++ Code
-
-
-class Solution {
-public:
-    vector<int> searchRange(vector<int>& nums, int target) {
-
-        auto first = lower_bound(nums.begin(), nums.end(), target);
-
-        // Target not present.
-        if (first == nums.end() || *first != target)
-            return {-1, -1};
-
-        auto last = upper_bound(nums.begin(), nums.end(), target);
-
-        return {
-            (int)(first - nums.begin()),
-            (int)(last - nums.begin()) - 1
-        };
-    }
-};
-```
-
----
-
-## Time Complexity
-
-
-// lower_bound() = O(log n)
-//
-// upper_bound() = O(log n)
-//
-// Overall:
-//
-// O(log n)
-```
+// Overall: **O(n)**
 
 ---
 
 ## Space Complexity
 
+**O(1)**
+
+---
+
+## Why is it Slow?
+
+// Even though the array is sorted, this approach still checks elements one by one.
+
+// If
+
+// * n = 10^5
+
+// then in the worst case every element must be visited.
+
+---
+
+
+                                         ******************************************************************************
+                                                     # Approach 2: Recursive Binary Search
+                                         ******************************************************************************
 ```
-O(1)
+
+## Intuition
+
+// Since the array is sorted, we can repeatedly divide the search space into two halves.
+
+// Compare the middle element with the target.
+
+// * If equal, return its index.
+// * If target is smaller, search the left half.
+// * Otherwise search the right half.
+
+---
+
+## Algorithm
+
+// 1. Find the middle element.
+// 2. If middle equals target, return its index.
+// 3. If target is smaller, recursively search the left half.
+// 4. Otherwise recursively search the right half.
+// 5. Return -1 if the search space becomes empty.
+
+---
+
+## C++ Code
+
+```cpp
+class Solution {
+public:
+
+    int binarySearch(vector<int>& nums, int left, int right, int target) {
+
+        if (left > right)
+            return -1;
+
+        int mid = left + (right - left) / 2;
+
+        if (nums[mid] == target)
+            return mid;
+
+        if (target < nums[mid])
+            return binarySearch(nums, left, mid - 1, target);
+
+        return binarySearch(nums, mid + 1, right, target);
+    }
+
+    int search(vector<int>& nums, int target) {
+
+        return binarySearch(nums, 0, nums.size() - 1, target);
+    }
+};
 ```
+
+---
+
+## Time Complexity
+
+// Each recursive call removes half of the remaining search space.
+
+// Overall: **O(log n)**
+
+---
+
+## Space Complexity
+
+**O(log n)**
+
+// Recursive call stack.
 
 ---
 
 ## Why is it Better?
 
+// Instead of checking every element, Binary Search eliminates half of the search space after every comparison.
 
-// Instead of checking every element,
-// Binary Search repeatedly halves the search space.
-//
-// This reduces the complexity
-// from O(n) to O(log n).
-//
-// Although this solution is optimal,
-// interviewers often expect you to implement
-// Binary Search manually instead of using STL.
-```
+// However, recursion requires additional stack memory.
 
 ---
 
 
                                          ******************************************************************************
-                                                    # Approach 3: Optimal Manual Binary Search
+                                                      # Approach 3: Optimal Iterative Binary Search
                                          ******************************************************************************
 ```
 
 ## Intuition
 
+// Since the array is already sorted, we can continuously eliminate half of the search space.
 
-// Since the array is sorted,
-// Binary Search can efficiently find the target.
-//
-// Instead of stopping when the target is found:
-//
-// * Perform one Binary Search to find the first occurrence.
-// * Perform another Binary Search to find the last occurrence.
-//
-// While searching:
-//
-// For the first occurrence:
-// Continue searching towards the left.
-//
-// For the last occurrence:
-// Continue searching towards the right.
-//
-// Finally return both indices.
-```
+// Maintain two pointers:
+
+// * left
+// * right
+
+// Find the middle element.
+
+// * If it equals the target, return its index.
+// * Otherwise discard one half of the array.
+
+// Continue until the target is found or the search space becomes empty.
 
 ---
 
 ## Algorithm
 
-```cpp
-// 1. Perform Binary Search to find the first occurrence.
-//
-//      * If target is found,
-//        store the index.
-//
-//      * Continue searching in the left half.
-//
-// 2. Perform Binary Search again to find the last occurrence.
-//
-//      * If target is found,
-//        store the index.
-//
-//      * Continue searching in the right half.
-//
-// 3. Return {first, last}.
-```
+// 1. Initialize left = 0 and right = n - 1.
+// 2. Compute the middle index.
+// 3. If nums[mid] == target, return mid.
+// 4. If target is greater, search the right half.
+// 5. Otherwise search the left half.
+// 6. Return -1 if target is not found.
 
 ---
 
 ## C++ Code
 
-
+```cpp
 class Solution {
 public:
-
-    int firstOccurrence(vector<int>& nums, int target) {
+    int search(vector<int>& nums, int target) {
 
         int left = 0;
         int right = nums.size() - 1;
-        int ans = -1;
 
         while (left <= right) {
 
             int mid = left + (right - left) / 2;
 
-            if (nums[mid] == target) {
+            // Target found.
+            if (nums[mid] == target)
+                return mid;
 
-                ans = mid;
-
-                // Continue searching on the left.
-                right = mid - 1;
-            }
-            else if (nums[mid] < target) {
-
+            // Search right half.
+            if (nums[mid] < target)
                 left = mid + 1;
-            }
-            else {
 
+            // Search left half.
+            else
                 right = mid - 1;
-            }
         }
 
-        return ans;
-    }
-
-    int lastOccurrence(vector<int>& nums, int target) {
-
-        int left = 0;
-        int right = nums.size() - 1;
-        int ans = -1;
-
-        while (left <= right) {
-
-            int mid = left + (right - left) / 2;
-
-            if (nums[mid] == target) {
-
-                ans = mid;
-
-                // Continue searching on the right.
-                left = mid + 1;
-            }
-            else if (nums[mid] < target) {
-
-                left = mid + 1;
-            }
-            else {
-
-                right = mid - 1;
-            }
-        }
-
-        return ans;
-    }
-
-    vector<int> searchRange(vector<int>& nums, int target) {
-
-        int first = firstOccurrence(nums, target);
-        int last = lastOccurrence(nums, target);
-
-        return {first, last};
+        // Target does not exist.
+        return -1;
     }
 };
 ```
@@ -346,51 +235,32 @@ public:
 
 ## Time Complexity
 
-```cpp
-// First Binary Search = O(log n)
-//
-// Second Binary Search = O(log n)
-//
-// Overall:
-//
-// O(log n)
-```
+// Each iteration removes half of the remaining search space.
+
+// Overall: **O(log n)**
 
 ---
 
 ## Space Complexity
 
-```
-O(1)
-```
+**O(1)**
 
 ---
 
 ## Why is this Optimal?
 
-```cpp
-// Binary Search eliminates half of the
-// remaining search space in every iteration.
-//
-// Two Binary Searches still take
-// only O(log n) time.
-//
-// Since comparison-based searching
-// on a sorted array cannot be faster
-// than O(log n),
-// this is the optimal solution.
-```
+// * Binary Search discards half of the search space after every comparison.
+
+// * No extra memory is used.
+
+// * Searching a sorted array faster than **O(log n)** using only comparisons is not possible.
 
 ---
 
 # Complexity Comparison
 
-| Approach                                              | Time Complexity | Space Complexity |
-| ----------------------------------------------------- | --------------- | ---------------- |
-| Brute Force                                           | **O(n)**        | **O(1)**         |
-| Binary Search using `lower_bound()` & `upper_bound()` | **O(log n)**    | **O(1)**         |
-| Optimal Manual Binary Search                          | **O(log n)**    | **O(1)**         |
-
-
-
-
+| Approach                        | Time Complexity | Space Complexity |
+| ------------------------------- | --------------- | ---------------- |
+| Brute Force                     | **O(n)**        | **O(1)**         |
+| Recursive Binary Search         | **O(log n)**    | **O(log n)**     |
+| Optimal Iterative Binary Search | **O(log n)**    | **O(1)**         |

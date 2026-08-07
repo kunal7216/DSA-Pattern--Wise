@@ -10,7 +10,9 @@ This repository focuses on clarity, correctness, and interview relevance, rather
 📌 Repository Highlights
 
 ✅ Pattern-based organization (as expected in interviews)
+
 ✅ Covers 130+ canonical LeetCode problems
+
 ✅ Clean C++ implementations
 
 ✅ Ideal for revision, mock interviews, and OA prep
